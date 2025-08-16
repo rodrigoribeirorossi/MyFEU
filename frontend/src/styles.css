@@ -1,0 +1,183 @@
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+  font-family: Arial, sans-serif;
+}
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 1rem;
+}
+.dashboard-title {
+  text-align: left;
+  font-size: 2rem;
+  margin-bottom: 12px;
+}
+.add-widget-btn {
+  margin-bottom: 12px;
+  padding: 8px 16px;
+  font-size: 1rem;
+}
+.add-widget-big {
+  font-size: 4rem;
+  background: none;
+  color: #007bff;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  line-height: 1;
+  transition: color 0.2s;
+}
+.add-widget-big:hover {
+  color: #0056b3;
+}
+.dashboard-grid {
+  display: grid;
+  grid-template-areas:
+    "saude noticias compras contas jogos"
+    "lembretes lembretes lembretes lembretes ideias"
+    "alertas repo bolsa atalhos ferramentas";
+  grid-template-columns: 2fr 2fr 2fr 2fr 2fr;
+  grid-template-rows: 2fr 1.5fr 1.5fr;
+  gap: 16px;
+  background: #f6f8fc;
+  padding: 32px;
+  min-height: 90vh;
+}
+
+/* Exemplo de como associar slots às áreas do grid */
+.slot-1 { grid-area: noticias; }
+.slot-2 { grid-area: compras; }
+.slot-3 { grid-area: lembretes; }
+.slot-4 { grid-area: alertas; }
+.slot-5 { grid-area: repo; }
+.slot-6 { grid-area: saude; }
+.slot-7 { grid-area: contas; }
+.slot-8 { grid-area: bolsa; }
+.slot-9 { grid-area: atalhos; }
+.slot-10 { grid-area: jogos; }
+.slot-11 { grid-area: ideias; }
+.slot-12 { grid-area: ferramentas; }
+
+.dashboard-slot {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px #ccc;
+  padding: 16px;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+.widget-card h4 {
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+}
+.dashboard-footer {
+  margin-top: 24px;
+  font-size: 0.9rem;
+  color: #888;
+  text-align: right;
+}
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 32px;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.modal-title {
+  font-size: 1.5rem;
+  margin: 0;
+}
+.modal-close {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+.modal-content {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+.btn-primary {
+  background: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.btn-primary:hover {
+  background: #0056b3;
+}
+.btn-secondary:hover {
+  background: #5a6268;
+}
+.appearance-modal {
+  min-width: 340px;
+  background: #fff;
+  color: #222;
+  padding: 32px 32px 24px 32px;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px #0002;
+}
+
+.appearance-title {
+  text-align: center;
+  font-size: 1.7rem;
+  margin-bottom: 24px;
+}
+
+.appearance-options {
+  margin-bottom: 32px;
+}
+
+.appearance-label {
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.palette-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  color: #222;
+  padding: 32px 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px #0002;
+  z-index: 1100;
+  min-width: 320px;
+}
