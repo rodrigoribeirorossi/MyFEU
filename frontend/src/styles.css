@@ -87,8 +87,6 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
   padding: 32px;
   border-radius: 8px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
@@ -180,4 +178,861 @@
   box-shadow: 0 4px 24px #0002;
   z-index: 1100;
   min-width: 320px;
+}
+
+/* Estilos comuns para widgets */
+.widget-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 8px;
+  padding: 4px;
+  z-index: 2;
+  background: transparent;
+  gap: 8px;
+}
+
+/* Ajuste os botões para ficarem mais compactos e agrupados */
+.widget-refresh-btn, 
+.widget-config-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 3px;
+  margin: 0 2px;
+  opacity: 0.7;
+  transition: all 0.2s;
+  line-height: 1;
+}
+
+.widget-refresh-btn:hover, 
+.widget-config-btn:hover {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+/* Adicione uma divisória sutil entre os botões */
+.widget-footer::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 12px;
+  width: 1px;
+  background-color: #ccc;
+  display: none; /* Remova se quiser mostrar a divisória */
+}
+
+/* Lista de Compras */
+.widget-shopping-list {
+  width: 100%;
+}
+
+.shopping-input {
+  display: flex;
+  margin-bottom: 8px;
+}
+
+.shopping-input input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px 0 0 4px;
+}
+
+.shopping-input button {
+  padding: 8px 12px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+}
+
+.shopping-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.shopping-items li {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.shopping-items li.completed span {
+  text-decoration: line-through;
+  color: #888;
+}
+
+.shopping-items li button {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: #dc3545;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.empty-list {
+  color: #888;
+  text-align: center;
+  padding: 12px 0;
+}
+
+/* Reminders */
+.widget-reminders {
+  width: 100%;
+}
+
+.reminder-input {
+  display: flex;
+  margin-bottom: 8px;
+}
+
+.reminder-input input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px 0 0 4px;
+}
+
+.reminder-input button {
+  padding: 8px 12px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+}
+
+.reminder-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.reminder-items li {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.reminder-items li.completed span {
+  text-decoration: line-through;
+  color: #888;
+}
+
+.reminder-items li small {
+  margin-left: 8px;
+  color: #888;
+  font-size: 0.8rem;
+}
+
+.reminder-items li button {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: #dc3545;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+/* Health */
+.widget-health {
+  width: 100%;
+}
+
+.health-metrics {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.health-metric-item {
+  padding: 8px;
+  margin-bottom: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #f9f9f9;
+}
+
+.metric-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.metric-name {
+  font-weight: bold;
+}
+
+.metric-value {
+  font-size: 1.2rem;
+  margin: 4px 0;
+}
+
+.metric-date {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.health-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.health-form input {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.health-form div {
+  display: flex;
+  gap: 8px;
+}
+
+.health-form button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.health-form button:first-child {
+  background: #28a745;
+  color: white;
+}
+
+.health-form button:last-child {
+  background: #6c757d;
+  color: white;
+}
+
+.add-metric-btn {
+  width: 100%;
+  padding: 8px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+/* Estilos para o Widget de Notícias */
+.widget-news {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.news-display {
+  flex-grow: 1;
+  overflow: hidden;
+  margin-bottom: 40px; /* Aumentar o espaço para os botões */
+}
+
+.news-item {
+  padding: 4px 0;
+  animation: fadeIn 0.5s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.news-meta-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 4px 0 8px;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+/* Espaçamento melhorado para o título */
+.news-title {
+  font-size: 0.7rem;
+  margin-top: 0;
+  margin-bottom: 4px;
+  line-height: 1.3;
+  max-height: 2.6em;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  box-orient: vertical;
+  text-overflow: ellipsis;
+}
+
+/* Ajustes no badge de tópico */
+.topic-badge {
+  background-color: #e9ecef;
+  border-radius: 12px;
+  padding: 1px 6px;
+  font-size: 0.7rem;
+  color: #495057;
+  margin-left: 4px;
+}
+
+/* Fonte da notícia */
+.news-source {
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60%;
+}
+
+/* Contador de notícias no rodapé */
+.news-counter {
+  font-size: 0.75rem;
+  color: #666;
+  text-align: right;
+  margin-top: 4px;
+  padding-bottom: 0;
+  flex-grow: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.news-navigation {
+  display: none; /* Esconder a antiga navegação */
+}
+
+/* Botões de navegação com posicionamento específico */
+.news-nav-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: #007bff;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.news-nav-btn:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+  color: #0056b3;
+}
+
+/* Botões centrais de controle */
+.widget-controls {
+  display: flex;
+  gap: 8px;
+  padding: 0 4px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 12px;
+}
+
+/* Estilo para o loader de carregamento */
+.loader {
+  border: 3px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 3px solid #007bff;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+  margin: 10px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Estilos para imagens de notícias */
+.news-image-container {
+  width: 100%;
+  height: 100px; /* Reduzir um pouco a altura */
+  overflow: hidden;
+  margin-bottom: 8px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.news-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.news-display:hover .news-image {
+  transform: scale(1.05);
+}
+
+/* Atualizar o estilo da descrição para maior compatibilidade */
+.news-description {
+  font-size: 0.8rem;
+  color: #555;
+  margin: 4px 0 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 2.4em;
+}
+
+.image-loading-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background-color: #f0f0f0;
+}
+
+.loader-small {
+  border: 2px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 2px solid #007bff;
+  width: 16px;
+  height: 16px;
+  animation: spin 1s linear infinite;
+}
+
+/* Estilo para o botão de atualizar */
+.widget-refresh-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 4px;
+  margin: 0;
+  line-height: 1;
+  opacity: 0.7;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.widget-refresh-btn:hover {
+  opacity: 1;
+  transform: rotate(180deg);
+}
+
+/* Botões de navegação com posicionamento específico */
+.news-nav-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: #007bff;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.news-nav-btn:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+  color: #0056b3;
+}
+
+/* Container para os botões no footer */
+.widget-footer-container {
+  display: none; /* se não usar o container visível, manter escondido para evitar sobreposição */
+}
+
+/* Estilos para o Widget de Jogos e Resultados */
+.widget-jogos {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.jogos-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding-bottom: 40px;
+}
+
+.clube-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  padding: 5px;
+  background: linear-gradient(to right, #f8f9fa, #e9ecef, #f8f9fa);
+  border-radius: 5px;
+}
+
+.clube-escudo {
+  width: 32px;
+  height: 32px;
+  margin-right: 10px;
+}
+
+.clube-nome {
+  font-size: 1.2rem;
+  margin: 0;
+  font-weight: bold;
+}
+
+.partidas-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-grow: 1;
+  overflow: auto;
+}
+
+.partida-container {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.partida-container.ultima {
+  border-left: 3px solid #007bff;
+}
+
+.partida-container.proxima {
+  border-left: 3px solid #28a745;
+}
+
+.partida-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.partida-tipo {
+  font-weight: bold;
+  color: #495057;
+}
+
+.partida-times {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.time {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 40%;
+}
+
+.time-favorito {
+  font-weight: bold;
+}
+
+.escudo-time {
+  width: 36px;
+  height: 36px;
+  margin-bottom: 5px;
+}
+
+.nome-time {
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.placar, .vs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  width: 20%;
+}
+
+.placar .separador {
+  margin: 0 5px;
+}
+
+.resultado-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin: 5px 0;
+  text-align: center;
+  width: 100%;
+}
+
+.resultado-badge.vitoria {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.resultado-badge.derrota {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.resultado-badge.empate {
+  background-color: #e2e3e5;
+  color: #383d41;
+}
+
+.partida-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin-top: 8px;
+}
+
+/* Configuração do Time */
+.clubes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.clube-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.clube-item.selected {
+  border-color: #007bff;
+  background-color: #e6f2ff;
+  transform: scale(1.05);
+}
+
+.clube-item:hover {
+  background-color: #f8f9fa;
+}
+
+.clube-escudo-select {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 4px;
+  display: inline-block;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+/* Estilos para a configuração do widget de jogos */
+.widget-jogos-config {
+  padding: 15px;
+  background-color: white;
+  border-radius: 8px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.widget-jogos-config h3 {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.config-section {
+  margin-bottom: 20px;
+}
+
+.config-section h4 {
+  margin-bottom: 10px;
+  font-size: 1rem;
+}
+
+.config-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.widget-jogos-error,
+.widget-jogos-loading {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 15px;
+  text-align: center;
+  color: #721c24;
+  background-color: #f8d7da;
+  border-radius: 8px;
+}
+
+/* Corrigir o tamanho do grid de clubes */
+.clubes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 8px;
+  margin: 10px 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.clube-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.clube-escudo-select {
+  width: 30px;
+  height: 30px;
+  margin-bottom: 3px;
+}
+
+.clube-nome-select {
+  font-size: 0.7rem;
+  text-align: center;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* ---------- Ajustes específicos para WidgetJogos ---------- */
+
+/* Forçar fonte consistente dos nomes (evita diferença entre bold e normal) */
+.clube-nome,
+.nome-time,
+.clube-nome-select,
+.clube-nome { 
+  font-weight: 600 !important;
+  line-height: 1.1;
+}
+
+/* Escudos: tamanho fixo, evitar layout shift, e garantir fallback por object-fit */
+.escudo-time,
+.clube-escudo,
+.clube-escudo-select {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+  background-color: #ffffff;
+  border-radius: 4px;
+}
+
+/* Evitar que imagens causem jump: reserve espaço mínimo para o nome */
+.time { min-height: 72px; }
+
+/* Loading / Error cards: limitar altura, permitir scroll interno e reduzir impacto visual */
+.widget-jogos-loading,
+.widget-jogos-error {
+  max-height: 240px;      /* não maior que o slot para evitar sobreposição */
+  min-height: 140px;
+  overflow: auto;
+  padding: 12px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  z-index: 1;             /* garantir empilhamento normal (não por cima de outros cards) */
+  position: relative;     /* evitar float/escape do flow do layout */
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}
+
+/* Botões do card de erro/loading mais compactos e alinhados */
+.widget-jogos-loading button,
+.widget-jogos-error button {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+}
+
+/* Melhor separação entre cards para evitar sobreposição visual */
+.partida-container {
+  position: relative;     /* manter stacking local */
+  z-index: 0;
+}
+
+/* Placeholder visual quando crest não carregar (garante contraste) */
+.escudo-time[onerror],
+.clube-escudo[onerror] {
+  background: #f6f6f6;
+}
+
+/* Evitar barra de rolagem horizontal no widget */
+.widget-jogos, .jogos-content {
+  overflow-x: hidden;
+}
+
+/* Pequena suavização para imagens que carregam tardiamente */
+.escudo-time, .clube-escudo {
+  transition: opacity 0.2s ease;
+  opacity: 1;
+}
+.escudo-time.loading, .clube-escudo.loading {
+  opacity: 0.4;
+}
+
+/* Ajustes para imagens no modal de configuração */
+.clube-escudo-select {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 4px;
+  display: inline-block;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+/* Botão remover do widget */
+.widget-remove-btn {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.widget-remove-btn:hover {
+  background: #ffecec;
 }

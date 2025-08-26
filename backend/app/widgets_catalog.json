@@ -1,14 +1,86 @@
 [
-  { "id": 1, "name": "Notícias", "description": "Escolha temas e receba as últimas notícias", "icon_url": "/icons/news.png" },
-  { "id": 2, "name": "Lista de Compras", "description": "Defina sua lista de compras", "icon_url": "/icons/shopping.png" },
-  { "id": 3, "name": "Lembretes", "description": "Crie lembretes para o seu dia a dia", "icon_url": "/icons/reminder.png" },
-  { "id": 4, "name": "Alertas Redes Sociais", "description": "Alertas das redes sociais", "icon_url": "/icons/social.png" },
-  { "id": 5, "name": "Repositório", "description": "Acesso rápido aos arquivos", "icon_url": "/icons/repo.png" },
-  { "id": 6, "name": "Saúde", "description": "Itens e informações de saúde", "icon_url": "/icons/health.png" },
-  { "id": 7, "name": "Contas e Pagamentos", "description": "Gerencie despesas e vencimentos", "icon_url": "/icons/payments.png" },
-  { "id": 8, "name": "Bolsa de Valores", "description": "Cotações e mercado financeiro", "icon_url": "/icons/market.png" },
-  { "id": 9, "name": "Atalhos", "description": "Configuração de atalhos rápidos", "icon_url": "/icons/shortcut.png" },
-  { "id": 10, "name": "Jogos e Resultados", "description": "Resultados e próximos jogos", "icon_url": "/icons/games.png" },
-  { "id": 11, "name": "Ideias (IA)", "description": "Caixa de ideias com IA", "icon_url": "/icons/ai.png" },
-  { "id": 12, "name": "Ferramentas", "description": "Calculadora, relógios, alarme, calendário", "icon_url": "/icons/tools.png" }
+  {
+    "id": 1,
+    "name": "Notícias",
+    "description": "Últimas notícias personalizadas",
+    "icon": "📝",
+    "default_config": { "source": "g1", "categories": ["geral"] }
+  },
+  {
+    "id": 2,
+    "name": "Lista de Compras",
+    "description": "Organize suas compras",
+    "icon": "🎁",
+    "default_config": { "items": [] }
+  },
+  {
+    "id": 3,
+    "name": "Lembretes",
+    "description": "Anotações e lembretes",
+    "icon": "📅",
+    "default_config": { "items": [] }
+  },
+  {
+    "id": 4,
+    "name": "Saúde",
+    "description": "Acompanhe sua saúde",
+    "icon": "❤️",
+    "default_config": { "metrics": [] }
+  },
+  {
+    "id": 5,
+    "name": "Alertas Redes Sociais",
+    "description": "Notificações de suas redes",
+    "icon": "🛡️",
+    "default_config": { "networks": [] }
+  },
+  {
+    "id": 6,
+    "name": "Repositório",
+    "description": "Acesso a seus arquivos",
+    "icon": "☁️",
+    "default_config": { "sources": [] }
+  },
+  {
+    "id": 7,
+    "name": "Contas e Pagamentos",
+    "description": "Organização financeira",
+    "icon": "💸",
+    "default_config": { "accounts": [] }
+  },
+  {
+    "id": 8,
+    "name": "Bolsa de Valores",
+    "description": "Acompanhe o mercado financeiro",
+    "icon": "📈",
+    "default_config": { "stocks": [] }
+  },
+  {
+    "id": 9,
+    "name": "Atalhos",
+    "description": "Links e sites favoritos",
+    "icon": "🧭",
+    "default_config": { "shortcuts": [] }
+  },
+  {
+    "id": 10,
+    "name": "Jogos e Resultados",
+    "description": "Scores esportivos",
+    "icon": "⚽",
+    "default_config": { "teams": [] }
+  },
+  {
+    "id": 11,
+    "name": "Ideias",
+    "description": "Anotações de ideias",
+    "icon": "📝",
+    "default_config": { "notes": [] }
+  },
+  {
+    "id": 12,
+    "name": "Ferramentas",
+    "description": "Calculadora e utilitários",
+    "icon": "🛠️",
+    "default_config": { "tools": [] }
+  }
 ]

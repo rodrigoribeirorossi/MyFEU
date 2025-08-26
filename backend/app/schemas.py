@@ -11,7 +11,7 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: int
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class WidgetBase(BaseModel):
     name: str
@@ -21,7 +21,7 @@ class WidgetBase(BaseModel):
 class Widget(WidgetBase):
     id: int
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class UserWidgetBase(BaseModel):
     widget_id: int
@@ -32,7 +32,7 @@ class UserWidget(UserWidgetBase):
     id: int
     user_id: int
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class WidgetDataBase(BaseModel):
     data: Dict
@@ -41,4 +41,4 @@ class WidgetData(WidgetDataBase):
     id: int
     user_widget_id: int
     class Config:
-        orm_mode = True
+        from_attributes = True

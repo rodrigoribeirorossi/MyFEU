@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import WidgetCard from "./WidgetCard";
 import AddWidgetModal from "./AddWidgetModal";
 import AppearanceModal from "./AppearanceModal";
+import Notification from './Notification';
 import "./styles.css";
 
 export default function Dashboard() {
@@ -18,6 +19,7 @@ export default function Dashboard() {
     datetime: ""
   });
   const [addWidgetSlot, setAddWidgetSlot] = useState(null);
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     // Data/Hora
@@ -59,6 +61,58 @@ export default function Dashboard() {
 
     return () => clearInterval(interval);
   }, []);
+
+  const showNotification = (message, type = 'success') => {
+    const id = Date.now();
+    setNotifications(prev => [...prev, { id, message, type }]);
+    return id;
+  };
+
+  const removeNotification = (id) => {
+    setNotifications(prev => prev.filter(notification => notification.id !== id));
+  };
+
+  const handleWidgetAdded = (newWidget, slot) => {
+    try {
+      console.log("Adicionando widget ao slot:", slot, newWidget);
+      
+      if (!newWidget) {
+        showNotification('Erro ao adicionar widget: Dados inválidos', 'error');
+        return;
+      }
+      
+      // Clone o array atual de widgets
+      const newWidgets = [...userWidgets];
+      
+      // Adicione o novo widget ao slot específico
+      newWidgets[slot] = newWidget;
+      
+      // Atualize o estado com o novo array
+      setUserWidgets(newWidgets);
+      
+      // Mostrar notificação de sucesso
+      showNotification(`Widget "${newWidget.name}" adicionado com sucesso!`, 'success');
+      
+      // Fechar o modal
+      setAddWidgetSlot(null);
+    } catch (error) {
+      console.error("Erro ao adicionar widget:", error);
+      showNotification(`Erro ao adicionar widget: ${error.message}`, 'error');
+    }
+  };
+
+  const removeWidgetAt = (index) => {
+    try {
+      const newWidgets = [...userWidgets];
+      const removed = newWidgets[index];
+      newWidgets[index] = null;
+      setUserWidgets(newWidgets);
+      showNotification(`Widget "${removed?.name || 'Widget'}" removido`, 'success');
+    } catch (error) {
+      console.error("Erro ao remover widget:", error);
+      showNotification(`Erro ao remover widget: ${error.message}`, 'error');
+    }
+  };
 
   return (
     <div className="dashboard-container" style={{ background: bgColor }}>
@@ -127,14 +181,19 @@ export default function Dashboard() {
           onClose={() => setAddWidgetSlot(null)}
           userId={1}
           userWidgets={userWidgets}
-          setUserWidgets={widgets => {
-            // Adiciona o widget na posição correta
-            const newWidgets = [...userWidgets];
-            newWidgets[addWidgetSlot] = widgets[widgets.length - 1];
-            setUserWidgets(newWidgets);
-            setAddWidgetSlot(null);
-          }}
+          setUserWidgets={setUserWidgets} // Passar a função diretamente
           slot={addWidgetSlot}
+          onWidgetAdded={handleWidgetAdded}
+        />
+      )}
+      {showAppearance && (
+        <AppearanceModal
+          currentColor={bgColor}
+          onClose={() => setShowAppearance(false)}
+          onSave={(color) => {
+            setBgColor(color);
+            setShowAppearance(false);
+          }}
         />
       )}
       <div className="dashboard-grid">
@@ -144,10 +203,19 @@ export default function Dashboard() {
               widget={widget}
               slot={idx + 1}
               onAdd={() => setAddWidgetSlot(idx)}
+              onRemove={() => removeWidgetAt(idx)}
             />
           </div>
         ))}
       </div>
+      {notifications.map(({ id, message, type }) => (
+        <Notification 
+          key={id}
+          message={message}
+          type={type}
+          onClose={() => removeNotification(id)}
+        />
+      ))}
       <footer className="dashboard-footer">
         <span>Source: themycanvas.com - made by Bram Kanstein (@bramk)</span>
       </footer>
