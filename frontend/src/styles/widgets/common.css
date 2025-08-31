@@ -1,0 +1,63 @@
+/* Estilos comuns para widgets */
+.widget-footer {
+  display: flex;
+  justify-content: center; /* Alterar para centralizar */
+  align-items: center;
+  margin-top: 8px;
+  padding: 4px;
+  z-index: 2;
+  background: transparent;
+  gap: 8px;
+  position: relative;
+  /* Adicionar padding à direita para evitar conflito com o resize-handle */
+  padding-right: 24px; 
+}
+
+.widget-footer-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.9);
+  border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.widget-controls {
+  display: flex;
+  align-items: center;
+}
+
+/* Adicionar estilo de focus para acessibilidade */
+.widget-refresh-btn:focus, 
+.widget-config-btn:focus,
+.widget-remove-btn:focus {
+  outline: 2px solid #007bff;
+  border-radius: 4px;
+}
+
+.empty-list {
+  color: #888;
+  text-align: center;
+  padding: 12px 0;
+}
+
+/* Adicione após as regras do widget-footer */
+
+/* Animação de rotação para o ícone de atualização */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.widget-refresh-btn .spin {
+  animation: spin 1.2s linear infinite;
+}
+
+.refreshing {
+  opacity: 0.7;
+  pointer-events: none;
+}

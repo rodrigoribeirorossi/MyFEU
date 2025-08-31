@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import WidgetNewsConfig from "./WidgetNewsConfig";
 import axios from "axios";
+import '../styles/widgets/common.css';
+import '../styles/widgets/news.css';
 
 // Tópicos disponíveis
 const AVAILABLE_TOPICS = [
@@ -638,153 +640,17 @@ export default function WidgetNews({ data }) {
               </div>
             )}
           </div>
-          
-          {news.length > 1 && (
-            <div className="widget-footer-container">
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setCurrentNewsIndex(prev => (prev - 1 + news.length) % news.length);
-                }}
-                className="news-nav-btn news-nav-left"
-                aria-label="Notícia anterior"
-              >
-                ←
-              </button>
-              
-              <div className="widget-controls">
-                <button 
-                  className="widget-refresh-btn" 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    console.log("Atualizando notícias manualmente");
-                    setLoading(true);
-                    loadNews();
-                  }}
-                  title="Atualizar notícias"
-                >
-                  🔄
-                </button>
-                <button 
-                  className="widget-config-btn" 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    console.log("Botão de configuração do footer clicado");
-                    setShowConfig(true);
-                  }}
-                  title="Configurar notícias"
-                >
-                  ⚙️
-                </button>
-              </div>
-              
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setCurrentNewsIndex(prev => (prev + 1) % news.length);
-                }}
-                className="news-nav-btn news-nav-right"
-                aria-label="Próxima notícia"
-              >
-                →
-              </button>
-            </div>
-          )}
         </>
       )}
       
       {/* Modal de configuração existente */}
       {showConfig && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.7)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 9999
-        }}>
-          <div style={{
-            backgroundColor: 'white',
-            padding: '20px',
-            borderRadius: '8px',
-            width: '80%',
-            maxWidth: '500px',
-            maxHeight: '80vh',
-            overflow: 'auto'
-          }}>
-            <h3>Configurar Notícias</h3>
-            
-            <div className="config-section">
-              <h4>Selecione os tópicos de seu interesse:</h4>
-              <div className="topics-list">
-                {AVAILABLE_TOPICS.map(topic => (
-                  <div key={topic.id} className="topic-item">
-                    <label>
-                      <input
-                        type="checkbox"
-                        checked={config.topics.includes(topic.id)}
-                        onChange={() => {
-                          // Lógica para alternar tópico
-                          const newTopics = config.topics.includes(topic.id)
-                            ? config.topics.filter(id => id !== topic.id)
-                            : [...config.topics, topic.id];
-                            
-                          // Não permita ficar sem nenhum tópico
-                          if (newTopics.length === 0) {
-                            alert("Selecione pelo menos um tópico");
-                            return;
-                          }
-                          
-                          setConfig({...config, topics: newTopics});
-                        }}
-                      />
-                      {topic.name}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className="config-section">
-              <h4>Velocidade de rotação das notícias:</h4>
-              <select 
-                value={config.refreshInterval}
-                onChange={(e) => setConfig({...config, refreshInterval: Number(e.target.value)})}
-              >
-                <option value={3000}>Rápido (3 segundos)</option>
-                <option value={5000}>Médio (5 segundos)</option>
-                <option value={8000}>Lento (8 segundos)</option>
-              </select>
-            </div>
-            
-            <div className="config-actions">
-              <button 
-                onClick={() => {
-                  console.log("Salvando configuração:", config);
-                  setShowConfig(false);
-                  setTimeout(loadNews, 100);
-                }} 
-                className="btn-primary"
-              >
-                Salvar
-              </button>
-              <button 
-                onClick={() => {
-                  if (config.topics && config.topics.length > 0) {
-                    setShowConfig(false);
-                  }
-                }} 
-                className="btn-secondary"
-              >
-                Cancelar
-              </button>
-            </div>
-          </div>
-        </div>
+        <WidgetNewsConfig
+          config={config}
+          topics={AVAILABLE_TOPICS}
+          onSave={saveConfig}
+          onCancel={() => setShowConfig(false)}
+        />
       )}
     </div>
   );

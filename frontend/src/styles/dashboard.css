@@ -1,0 +1,151 @@
+.dashboard-container {
+  max-width: 1440px; 
+  width: 100%;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.dashboard-title {
+  text-align: left;
+  font-size: 2rem;
+  margin-bottom: 12px;
+}
+
+.dashboard-footer {
+  margin-top: 24px;
+  font-size: 0.9rem;
+  color: #888;
+  text-align: right;
+}
+
+/* Estilos para o grid dinâmico */
+.dashboard-dynamic-grid {
+  width: 100%;
+  min-height: 400px;
+  margin-bottom: 20px;
+  overflow: visible;
+}
+
+.empty-dashboard {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 2px dashed #dee2e6;
+}
+
+.empty-dashboard h2 {
+  margin-bottom: 8px;
+  color: #6c757d;
+}
+
+.empty-dashboard p {
+  margin-bottom: 16px;
+  color: #6c757d;
+}
+
+.dashboard-widget-container {
+  position: relative;
+  height: 100%;
+}
+
+.widget-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.widget-card.is-dragging {
+  opacity: 0.8;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  z-index: 100;
+}
+
+.widget-card.is-resizing {
+  opacity: 0.9;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.widget-header {
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.widget-drag-handle {
+  cursor: move;
+  flex-grow: 1;
+  padding: 4px 0;
+  display: flex;
+  align-items: center;
+}
+
+.widget-title {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.widget-content {
+  padding: 12px;
+  flex-grow: 1;
+  overflow: auto;
+  position: relative;
+}
+
+.widget-resize-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 16px;
+  height: 16px;
+  cursor: se-resize;
+  background: #f8f9fa;
+  border-top-left-radius: 4px;
+}
+
+.widget-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 20px;
+}
+
+.widget-loading-spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+.widget-error {
+  background: #fff3cd;
+  color: #856404;
+  padding: 12px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+/* Media queries para responsividade */
+@media (max-width: 640px) {
+  .dashboard-container {
+    padding: 8px;
+  }
+  
+  .dashboard-title {
+    font-size: 1.5rem;
+  }
+}

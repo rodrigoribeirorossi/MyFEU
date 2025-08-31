@@ -43,10 +43,71 @@ O MyFEU é um assistente pessoal que centraliza múltiplas atividades e informa�
 - Recomenda-se JWT para sessões e OAuth2 para integrações externas.
 
 ### 4. UX Responsiva e Acessível
-- Interface adaptável para desktop e mobile.
-- Cards podem crescer ou diminuir conforme o conteúdo.
-- Botão "+" para adicionar widgets, com modal de seleção e configuração.
-- Layout grid conforme protótipo, com áreas bem definidas e navegação intuitiva.
+- Grid e Breakpoints
+
+- Definição de colunas por breakpoint:
+sm (≤ 640px): 1 coluna
+md (641–1024px): 6 colunas (máx. 2 widgets por linha)
+lg (≥ 1025px): 12 colunas (máx. 3 widgets por linha)
+Gutters: 16px (horizontal e vertical).
+Alinhamento: compactação vertical, sem sobreposição.
+
+- Tamanhos por Widget
+Para cada tipo de widget: minW, minH, defaultW, defaultH, maxW por breakpoint.
+Ex.: KPI (minW=3,minH=2,default=3x2,maxW=4); Chart (minW=4,minH=3,default=4x3,maxW=4).
+Comportamento de Adição
+
+- Botão “+” abre modal com:
+Lista de widgets (nome, descrição, ícone, prévia)
+
+- Busca e categorias
+Config inicial (Devemos iniciar o sistema somente com um espaço pre-definido, com a opção de incluir Widgets)
+Ao adicionar: inserir na primeira posição livre da grade da linha atual, respeitando limite por linha.
+E deixar mais um elemento fixo na proxima posição para o usuário poder adicionar o segundo Widget.
+
+- Drag, Resize e Teclado
+Drag handle no header do card.
+Resize handle no canto inferior direito.
+Teclado: setas movem; Shift+setas redimensionam; Enter ativa modo mover; Esc cancela.
+Anunciar ações por aria-live.
+
+- Persistência
+Persistir layout por usuário no localStorage (chave padronizada) e, se disponível, em endpoint:
+GET /api/dashboard/layout
+PUT /api/dashboard/layout
+Debounce 300ms para evitar excesso de chamadas.
+
+- Acessibilidade e Semântica
+Roles: region/tabpanel conforme contexto; aria-label com nome do widget.
+Foco visível e ordem lógica.
+Modal acessível (focus trap, aria-modal, Esc).
+Contraste mínimo WCAG AA (4.5:1).
+
+- Estados de UI
+Empty state: instrução para adicionar widgets.
+Loading: skeletons nos widgets que dependem de dados.
+Error state: fallback com retry.
+Limite por linha atingido: feedback sutil ao tentar expandir além do permitido.
+
+- Performance
+Debounce/throttle em drag/resize.
+Virtualização opcional se houver muitos widgets.
+Lazy loading de widgets por demanda (code-splitting).
+
+- Design System
+Tokens de espaço, cores, radius e sombras padronizados.
+Suporte a tema claro/escuro.
+Telemetria (opcional)
+Eventos: widget_added, widget_removed, moved, resized, layout_saved.
+
+- Segurança
+Validar registro de widgets (lista whitelisted).
+Sanitizar conteúdo dinâmico.
+
+- Testes
+E2E (ex.: Playwright) cobrindo adicionar/mover/redimensionar/persistir.
+Unitários para utilitários de layout e persistência.
+A11y (axe) básico no Dashboard.
 
 ### 5. Extensibilidade
 - Widgets são modularizados, permitindo fácil expansão com novos tipos.

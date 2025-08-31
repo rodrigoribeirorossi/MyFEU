@@ -1,0 +1,86 @@
+.btn-primary {
+  background: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: #0056b3;
+}
+
+.btn-secondary:hover {
+  background: #5a6268;
+}
+
+.add-widget-btn {
+  margin-bottom: 12px;
+  padding: 8px 16px;
+  font-size: 1rem;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.add-widget-btn:hover {
+  background: #0056b3;
+}
+
+.add-widget-big {
+  font-size: 4rem;
+  background: none;
+  color: #007bff;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.add-widget-big:hover {
+  color: #0056b3;
+}
+
+/* Botões de widget */
+.widget-refresh-btn, 
+.widget-config-btn,
+.widget-remove-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 3px;
+  margin: 0 2px;
+  opacity: 0.7;
+  transition: all 0.2s;
+  line-height: 1;
+}
+
+.widget-refresh-btn:hover, 
+.widget-config-btn:hover,
+.widget-remove-btn:hover {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+.widget-remove-btn {
+  color: #dc3545;
+}
+
+.widget-remove-btn:hover {
+  color: #bd2130;
+}

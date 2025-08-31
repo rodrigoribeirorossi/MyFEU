@@ -1,23 +1,48 @@
-import React, { useState, useEffect } from "react";
-import { getWidgets, addWidget } from "./api";
+import React, { useState, useEffect, useRef } from "react";
+import { getWidgets } from "./api";
+import './styles/modal.css';
 
-// Modificar a props do componente
-export default function AddWidgetModal({ onClose, userId, userWidgets, setUserWidgets, slot, onWidgetAdded }) {
+export default function AddWidgetModal({ onClose, userId, onWidgetAdded }) {
   const [widgets, setWidgets] = useState([]);
   const [selectedWidget, setSelectedWidget] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [addingWidget, setAddingWidget] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentCategory, setCurrentCategory] = useState("all");
   const [addError, setAddError] = useState(null);
+  
+  // Para a acessibilidade do modal
+  const modalRef = useRef(null);
+  const firstFocusableRef = useRef(null);
+  const lastFocusableRef = useRef(null);
+  
+  // Categorias de widgets
+  const categories = [
+    { id: "all", name: "Todos" },
+    { id: "info", name: "Informações" },
+    { id: "tools", name: "Ferramentas" },
+    { id: "sports", name: "Esportes" }
+  ];
+
+  // Mapear widgets para categorias (exemplo)
+  const getWidgetCategory = (widget) => {
+    const categoryMap = {
+      1: "info", // Notícias
+      2: "tools", // Lista de Compras
+      3: "tools", // Lembretes
+      4: "info", // Saúde
+      10: "sports" // Jogos
+    };
+    return categoryMap[widget.id] || "other";
+  };
 
   useEffect(() => {
     async function fetchWidgets() {
       try {
         setLoading(true);
         setError(null);
-        console.log("Buscando widgets da API...");
         const w = await getWidgets();
-        console.log("Widgets recebidos:", w);
         setWidgets(Array.isArray(w) ? w : []);
         setLoading(false);
       } catch (err) {
@@ -29,14 +54,58 @@ export default function AddWidgetModal({ onClose, userId, userWidgets, setUserWi
     fetchWidgets();
   }, []);
 
-  // Modifique a função handleAdd para mapear corretamente os IDs de widgets
+  // Setup para controle de foco no modal (acessibilidade)
+  useEffect(() => {
+    const handleTabKey = (e) => {
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
+      
+      if (e.key !== "Tab") return;
+      
+      if (!modalRef.current) return;
+      
+      const focusableElements = modalRef.current.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+      
+      // Shift+Tab - voltar para o último elemento se estiver no primeiro
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          lastElement.focus();
+          e.preventDefault();
+        }
+      } 
+      // Tab - ir para o primeiro elemento se estiver no último
+      else {
+        if (document.activeElement === lastElement) {
+          firstElement.focus();
+          e.preventDefault();
+        }
+      }
+    };
+    
+    document.addEventListener("keydown", handleTabKey);
+    
+    // Focar no primeiro elemento quando o modal abrir
+    if (firstFocusableRef.current) {
+      firstFocusableRef.current.focus();
+    }
+    
+    return () => {
+      document.removeEventListener("keydown", handleTabKey);
+    };
+  }, [onClose]);
+
   const handleAdd = async () => {
     if (!selectedWidget) return;
     try {
       setAddingWidget(true);
       setAddError(null);
-      
-      console.log("Adicionando widget selecionado:", selectedWidget);
       
       // Mapear IDs da API para os IDs de componentes no WidgetComponents
       const componentIdMap = {
@@ -52,125 +121,144 @@ export default function AddWidgetModal({ onClose, userId, userWidgets, setUserWi
       const apiWidgetId = Number(selectedWidget.id);
       const componentWidgetId = componentIdMap[apiWidgetId] || apiWidgetId;
       
-      console.log(`Mapeando API ID ${apiWidgetId} para Component ID ${componentWidgetId}`);
-      
-      // Cria um objeto de widget completo com todos os dados necessários
+      // Criar objeto widget
       const widgetObj = {
         widget_id: componentWidgetId,
         api_widget_id: apiWidgetId,
-        position: slot + 1,
         name: selectedWidget.name,
         icon: selectedWidget.icon,
         description: selectedWidget.description,
-        config:  { timeId: null, showEscudos: true }
+        config: selectedWidget.default_config || { timeId: null, showEscudos: true }
       };
       
-      try { localStorage.removeItem('jogosWidgetConfig'); } catch(e) {}
-      
-      const newWidget = await addWidget(userId, widgetObj);
-      console.log("Widget adicionado com sucesso:", newWidget);
-      
-      // Chamar o callback em vez de atualizar diretamente
-      if (onWidgetAdded) {
-        onWidgetAdded(newWidget, slot);
-      } else {
-        // Fallback para o método anterior
-        const newWidgets = [...userWidgets];
-        newWidgets[slot] = newWidget;
-        setUserWidgets(newWidgets);
+      // Limpar configurações anteriores
+      if (componentWidgetId === 5) {
+        try { localStorage.removeItem('jogosWidgetConfig'); } catch(e) {}
       }
       
+      // Chamar o callback com o novo widget
+      onWidgetAdded(widgetObj);
       setAddingWidget(false);
-      onClose();
     } catch (err) {
       console.error("Erro ao adicionar widget:", err);
       setAddError(`Erro ao adicionar widget: ${err.message}`);
       setAddingWidget(false);
-      // Não fechar o modal para que o usuário veja a mensagem de erro
     }
   };
 
+  // Filtrar widgets com base na pesquisa e categoria
+  const filteredWidgets = widgets.filter(w => {
+    const matchesSearch = w.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          w.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = currentCategory === "all" || getWidgetCategory(w) === currentCategory;
+    return matchesSearch && matchesCategory;
+  });
+
   return (
-    <div className="modal appearance-modal">
-      <h3 className="appearance-title">Adicionar Widget</h3>
-      {addError && (
-        <div style={{ 
-          backgroundColor: '#f8d7da', 
-          color: '#721c24', 
-          padding: '10px', 
-          borderRadius: '4px',
-          marginBottom: '15px'
-        }}>
-          <strong>Erro!</strong> {addError}
-          <button 
-            onClick={() => setAddError(null)} 
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#721c24',
-              float: 'right',
-              cursor: 'pointer',
-              fontWeight: 'bold'
-            }}
-          >
-            ×
-          </button>
-        </div>
-      )}
-      <div className="appearance-options" style={{ marginBottom: "24px" }}>
-        {loading ? (
-          <div style={{ textAlign: "center", padding: "20px" }}>
-            <p>Carregando widgets...</p>
-            <p style={{ fontSize: "0.8rem", color: "#666" }}>
-              Certifique-se de que a API está rodando em http://localhost:8000
-            </p>
-          </div>
-        ) : error ? (
-          <div style={{ textAlign: "center", padding: "20px", color: "red" }}>
-            <p>{error}</p>
+    <div 
+      className="modal-overlay" 
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+    >
+      <div className="modal appearance-modal" ref={modalRef}>
+        <h3 id="modal-title" className="appearance-title">Adicionar Widget</h3>
+        
+        {addError && (
+          <div className="error-message" role="alert">
+            <strong>Erro!</strong> {addError}
             <button 
-              className="btn-primary" 
-              onClick={() => window.location.reload()}
-              style={{ marginTop: "10px" }}
+              onClick={() => setAddError(null)} 
+              className="error-close-btn"
+              aria-label="Fechar mensagem de erro"
             >
-              Tentar novamente
+              ×
             </button>
           </div>
-        ) : widgets.length > 0 ? (
-          <ul style={{ padding: 0 }}>
-            {widgets.map(w => (
-              <li key={w.id} style={{ listStyle: "none", marginBottom: "8px" }}>
-                <button
-                  className={selectedWidget?.id === w.id ? "btn-primary" : "btn-secondary"}
-                  style={{ width: "100%" }}
-                  onClick={() => setSelectedWidget(w)}
-                >
-                  {w.name} {w.icon} - {w.description}
-                </button>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <div style={{ textAlign: "center", padding: "20px" }}>
-            <p>Nenhum widget disponível.</p>
-          </div>
         )}
-      </div>
-      <div className="modal-footer">
-        <button 
-          className="btn-primary" 
-          onClick={handleAdd} 
-          disabled={!selectedWidget || loading || addingWidget}
-        >
-          {addingWidget ? "Adicionando..." : "Adicionar"}
-        </button>
-        <button 
-          className="btn-secondary" 
-          onClick={onClose}
-          disabled={addingWidget}
-        >
-          Fechar
-        </button>
+        
+        <div className="search-filter-container">
+          <input
+            type="text"
+            placeholder="Buscar widgets..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+            ref={firstFocusableRef}
+          />
+          
+          <div className="category-tabs" role="tablist">
+            {categories.map(category => (
+              <button
+                key={category.id}
+                role="tab"
+                aria-selected={currentCategory === category.id}
+                onClick={() => setCurrentCategory(category.id)}
+                className={`category-tab ${currentCategory === category.id ? 'active' : ''}`}
+              >
+                {category.name}
+              </button>
+            ))}
+          </div>
+        </div>
+        
+        <div className="appearance-options widget-list-container">
+          {loading ? (
+            <div className="loading-state">
+              <div className="loader"></div>
+              <p>Carregando widgets...</p>
+            </div>
+          ) : error ? (
+            <div className="error-state">
+              <p>{error}</p>
+              <button 
+                className="btn-primary" 
+                onClick={() => window.location.reload()}
+              >
+                Tentar novamente
+              </button>
+            </div>
+          ) : filteredWidgets.length > 0 ? (
+            <ul className="widget-list">
+              {filteredWidgets.map(w => (
+                <li key={w.id} className="widget-list-item">
+                  <button
+                    className={selectedWidget?.id === w.id ? "widget-option selected" : "widget-option"}
+                    onClick={() => setSelectedWidget(w)}
+                  >
+                    <span className="widget-icon">{w.icon}</span>
+                    <div className="widget-option-info">
+                      <span className="widget-option-name">{w.name}</span>
+                      <span className="widget-option-desc">{w.description}</span>
+                    </div>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="empty-state">
+              <p>Nenhum widget encontrado com os filtros atuais.</p>
+            </div>
+          )}
+        </div>
+        
+        <div className="modal-footer">
+          <button 
+            className="btn-primary" 
+            onClick={handleAdd} 
+            disabled={!selectedWidget || loading || addingWidget}
+          >
+            {addingWidget ? "Adicionando..." : "Adicionar"}
+          </button>
+          <button 
+            className="btn-secondary" 
+            onClick={onClose}
+            disabled={addingWidget}
+            ref={lastFocusableRef}
+          >
+            Fechar
+          </button>
+        </div>
       </div>
     </div>
   );

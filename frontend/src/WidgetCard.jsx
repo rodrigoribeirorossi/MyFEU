@@ -1,4 +1,10 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useState } from "react";
+import './styles/widgets/common.css';
+import { 
+  FiRefreshCw,
+  FiSettings,
+  FiTrash2
+} from 'react-icons/fi';
 
 // Flag para controlar logs de debug
 const DEBUG = false;
@@ -13,41 +19,52 @@ const WidgetComponents = {
   // Adicione outros widgets aqui conforme necessário
 };
 
-export default function WidgetCard({ widget, slot, onAdd, onRemove }) {
-  // Função para renderizar o componente específico do widget
-  const renderWidgetContent = (widget) => {
-    // Log para debug - mostrar qual widget está sendo renderizado apenas se for diferente de null
-    if (DEBUG && widget) {
-      console.log(`Renderizando widget (${slot}):`, widget);
+export default function WidgetCard({ widget, onRemove, isDragging, isResizing, onRefresh, onConfigure }) {
+  // Estado para rastrear se o componente está sendo atualizado
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  
+  // Adicionar lógica adequada para as ações
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    
+    // Se um manipulador externo foi fornecido, use-o
+    if (onRefresh) {
+      onRefresh();
     }
     
-    // Se não houver widget, mostrar botão de adicionar
-    if (!widget) {
-      return (
-        <div style={{ height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
-          <button className="add-widget-big" onClick={onAdd}>
-            +
-          </button>
-        </div>
-      );
+    // Simulação de atualização (remover em produção)
+    setTimeout(() => setIsRefreshing(false), 800);
+  };
+  
+  const handleConfigure = () => {
+    // Se um manipulador externo foi fornecido, use-o
+    if (onConfigure) {
+      onConfigure(widget);
+    }
+  };
+  
+  // Função para renderizar o componente específico do widget
+  const renderWidgetContent = (widget) => {
+    if (DEBUG && widget) {
+      console.log(`Renderizando widget:`, widget);
     }
 
-    // Agora podemos acessar widget_id com segurança
-    if (DEBUG) console.log(`Widget ID (${slot}):`, widget.widget_id);
-
-    // Se o widget existir, tentar carregar o componente correspondente
     try {
       const WidgetComponent = WidgetComponents[widget.widget_id];
       
-      // Log para debug - verificar se encontrou o componente
       if (DEBUG) {
-        console.log(`Componente encontrado para widget_id ${widget.widget_id}:`, WidgetComponent ? "Sim" : "Não");
+        console.log(`Componente encontrado para widget_id ${widget.widget_id}:`, 
+          WidgetComponent ? "Sim" : "Não");
       }
       
       if (WidgetComponent) {
         return (
-          <Suspense fallback={<div>Carregando...</div>}>
-            {/* repassa onRemove para o widget (se suportado) */}
+          <Suspense fallback={
+            <div className="widget-loading">
+              <div className="widget-loading-spinner"></div>
+              <p>Carregando widget...</p>
+            </div>
+          }>
             <WidgetComponent data={widget} onRemove={onRemove} />
           </Suspense>
         );
@@ -56,31 +73,49 @@ export default function WidgetCard({ widget, slot, onAdd, onRemove }) {
       // Componente não encontrado - mostrar mensagem de erro
       console.error(`Componente não encontrado para widget ID ${widget.widget_id}`);
       return (
-        <div>
+        <div className="widget-error">
           <h4>{widget.name} {widget.icon}</h4>
           <p>Componente não encontrado (ID: {widget.widget_id})</p>
-          <pre style={{fontSize: '10px', overflow: 'auto', maxHeight: '100px'}}>
-            {JSON.stringify(widget, null, 2)}
-          </pre>
         </div>
       );
     } catch (error) {
       console.error("Erro ao renderizar widget:", error);
       return (
-        <div>
+        <div className="widget-error">
           <h4>Erro ao carregar widget</h4>
           <p>{error.message}</p>
-          <pre style={{fontSize: '10px', overflow: 'auto', maxHeight: '100px'}}>
-            {JSON.stringify(widget, null, 2)}
-          </pre>
         </div>
       );
     }
   };
 
   return (
-    <div style={{ height: "100%" }}>
-      {renderWidgetContent(widget)}
+    <div className={`widget-card ${isDragging ? 'is-dragging' : ''} ${isResizing ? 'is-resizing' : ''}`}>
+      <div className="widget-header">
+        <div className="widget-drag-handle" title="Arrastar para mover">
+          <span className="widget-title">{widget.name} {widget.icon}</span>
+        </div>
+      </div>
+      <div className="widget-content">
+        {renderWidgetContent(widget)}
+      </div>
+      <div className="widget-footer">
+        <button 
+          className={`widget-refresh-btn ${isRefreshing ? 'refreshing' : ''}`}
+          onClick={handleRefresh} 
+          aria-label="Atualizar"
+          disabled={isRefreshing}
+        >
+          <FiRefreshCw size={16} className={isRefreshing ? 'spin' : ''} />
+        </button>
+        <button className="widget-config-btn" onClick={handleConfigure} aria-label="Configurar">
+          <FiSettings size={16} />
+        </button>
+        <button className="widget-remove-btn" onClick={onRemove} aria-label="Remover">
+          <FiTrash2 size={16} />
+        </button>
+      </div>
+      <div className="widget-resize-handle" title="Redimensionar widget"></div>
     </div>
   );
 }

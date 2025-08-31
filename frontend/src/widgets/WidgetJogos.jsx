@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import WidgetJogosConfig from "./WidgetJogosConfig";
 import axios from "axios";
 import * as api from "../api"; // Importando da pasta src em vez de widgets
+import '../styles/widgets/jogos.css';
 
 // Lista dos clubes do Brasileirão Série A
 const CLUBES_SERIE_A = [
@@ -628,33 +629,6 @@ export default function WidgetJogos({ data, onRemove }) {
               tipo="proxima" 
             />
           )}
-        </div>
-        
-        <div className="widget-footer">
-          <button 
-            className="widget-config-btn" 
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowConfig(true);
-            }}
-            title="Configurar time favorito"
-          >
-            ⚙️
-          </button>
-          <button
-            className="widget-remove-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (!onRemove) return;
-              if (window.confirm("Remover este widget do seu painel?")) {
-                onRemove();
-              }
-            }}
-            title="Remover widget"
-            style={{ marginLeft: 8 }}
-          >
-            🗑️
-          </button>
         </div>
       </div>
     </div>

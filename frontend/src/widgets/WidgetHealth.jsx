@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import '../styles/widgets/health.css';
 
 export default function WidgetHealth({ data }) {
   const [metrics, setMetrics] = useState(data?.config?.metrics || []);
@@ -85,10 +86,6 @@ export default function WidgetHealth({ data }) {
           </button>
         </>
       )}
-      
-      <div className="widget-footer">
-        <button className="widget-config-btn">⚙️</button>
-      </div>
     </div>
   );
 }

@@ -50,10 +50,6 @@ export default function WidgetShoppingList({ data }) {
           ))
         )}
       </ul>
-      
-      <div className="widget-footer">
-        <button className="widget-config-btn">⚙️</button>
-      </div>
     </div>
   );
 }

@@ -1,0 +1,60 @@
+/* Reminders */
+.widget-reminders {
+  width: 100%;
+}
+
+.reminder-input {
+  display: flex;
+  margin-bottom: 8px;
+}
+
+.reminder-input input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px 0 0 4px;
+}
+
+.reminder-input button {
+  padding: 8px 12px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+}
+
+.reminder-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.reminder-items li {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.reminder-items li.completed span {
+  text-decoration: line-through;
+  color: #888;
+}
+
+.reminder-items li small {
+  margin-left: 8px;
+  color: #888;
+  font-size: 0.8rem;
+}
+
+.reminder-items li button {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: #dc3545;
+  font-size: 1.2rem;
+  cursor: pointer;
+}

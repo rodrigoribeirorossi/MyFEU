@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import '../styles/widgets/reminders.css';
 
 export default function WidgetReminders({ data }) {
   const [reminders, setReminders] = useState(data?.config?.items || []);
@@ -59,10 +60,6 @@ export default function WidgetReminders({ data }) {
           ))
         )}
       </ul>
-      
-      <div className="widget-footer">
-        <button className="widget-config-btn">⚙️</button>
-      </div>
     </div>
   );
 }

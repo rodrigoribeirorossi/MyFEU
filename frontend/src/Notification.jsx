@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './styles/components/notifications.css';
 
 export default function Notification({ message, type = 'success', duration = 3000, onClose }) {
   const [visible, setVisible] = useState(true);

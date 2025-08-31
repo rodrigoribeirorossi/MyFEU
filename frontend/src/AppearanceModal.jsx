@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import './styles/modal.css';
 
 const palette = [
   "#f6f8fc", "#ffffff", "#e3fcef", "#ffe3e3", "#e3e9ff", "#fffbe3",

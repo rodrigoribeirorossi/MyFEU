@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import ReactDOM from "react-dom";
 
 export default function WidgetNewsConfig({ config, topics, onSave, onCancel }) {
   const [selectedTopics, setSelectedTopics] = useState(config.topics || ["general"]);
@@ -32,8 +33,9 @@ export default function WidgetNewsConfig({ config, topics, onSave, onCancel }) {
     });
   };
   
-  return (
-    <div className="widget-config-modal" style={{
+  // Renderizar o modal no elemento raiz do DOM para evitar problemas de overflow
+  return ReactDOM.createPortal(
+    <div className="modal-overlay" style={{
       position: 'fixed',
       top: 0,
       left: 0,
@@ -58,14 +60,15 @@ export default function WidgetNewsConfig({ config, topics, onSave, onCancel }) {
         
         <div className="config-section">
           <h4>Selecione os tópicos de seu interesse:</h4>
-          <div className="topics-list">
+          <div className="topics-list" style={{ marginBottom: '15px' }}>
             {topics.map(topic => (
-              <div key={topic.id} className="topic-item">
-                <label>
+              <div key={topic.id} className="topic-item" style={{ marginBottom: '8px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
                   <input
                     type="checkbox"
                     checked={selectedTopics.includes(topic.id)}
                     onChange={() => handleTopicToggle(topic.id)}
+                    style={{ marginRight: '8px' }}
                   />
                   {topic.name}
                 </label>
@@ -74,11 +77,12 @@ export default function WidgetNewsConfig({ config, topics, onSave, onCancel }) {
           </div>
         </div>
         
-        <div className="config-section">
+        <div className="config-section" style={{ marginBottom: '20px' }}>
           <h4>Velocidade de rotação das notícias:</h4>
           <select 
             value={refreshInterval}
             onChange={(e) => setRefreshInterval(Number(e.target.value))}
+            style={{ padding: '8px', width: '100%', marginTop: '8px' }}
           >
             <option value={3000}>Rápido (3 segundos)</option>
             <option value={5000}>Médio (5 segundos)</option>
@@ -86,11 +90,12 @@ export default function WidgetNewsConfig({ config, topics, onSave, onCancel }) {
           </select>
         </div>
         
-        <div className="config-actions">
+        <div className="config-actions" style={{ display: 'flex', justifyContent: 'space-between' }}>
           <button onClick={handleSave} className="btn-primary">Salvar</button>
           <button onClick={onCancel} className="btn-secondary">Cancelar</button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

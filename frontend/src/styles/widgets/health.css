@@ -1,0 +1,86 @@
+/* Health */
+.widget-health {
+  width: 100%;
+}
+
+.health-metrics {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.health-metric-item {
+  padding: 8px;
+  margin-bottom: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #f9f9f9;
+}
+
+.metric-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.metric-name {
+  font-weight: bold;
+}
+
+.metric-value {
+  font-size: 1.2rem;
+  margin: 4px 0;
+}
+
+.metric-date {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.health-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.health-form input {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.health-form div {
+  display: flex;
+  gap: 8px;
+}
+
+.health-form button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.health-form button:first-child {
+  background: #28a745;
+  color: white;
+}
+
+.health-form button:last-child {
+  background: #6c757d;
+  color: white;
+}
+
+.add-metric-btn {
+  width: 100%;
+  padding: 8px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 8px;
+}
