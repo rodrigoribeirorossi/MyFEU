@@ -1,191 +1,835 @@
+/* Modal Base Styles */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0,0,0,0.7);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px); 
   display: flex;
+  align-items: center;
   justify-content: center;
-  align-items: center;
   z-index: 1000;
-}
-
-.modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  padding: 32px;
-  border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-  background: white;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.modal-title {
-  font-size: 1.5rem;
-  margin: 0;
-}
-
-.modal-close {
-  background: transparent;
-  border: none;
-  color: #333;
-  font-size: 1.2rem;
-  cursor: pointer;
-}
-
-.modal-content {
-  max-height: 60vh;
+  padding: 16px;
+  animation: fadeIn 0.2s ease-out;
+  /* Prevenir scroll horizontal */
+  overflow-x: hidden;
   overflow-y: auto;
 }
 
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 16px;
-  gap: 8px;
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-.appearance-modal {
-  min-width: 340px;
-  background: #fff;
-  color: #222;
-  padding: 32px 32px 24px 32px;
+/* Forçar scroll inicial à esquerda no modal */
+.modal {
+  background: white;
   border-radius: 12px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease-out;
+  /* Adicionar estas propriedades para garantir posicionamento correto */
+  position: relative;
+  scroll-behavior: smooth;
 }
 
-.appearance-title {
-  text-align: center;
-  font-size: 1.7rem;
-  margin-bottom: 24px;
+/* Garantir que o conteúdo do modal inicie com scroll à esquerda */
+.modal-content {
+  padding: 28px;
+  overflow-y: auto;
+  overflow-x: hidden; /* Prevenir scroll horizontal desnecessário */
+  flex: 1;
+  /* Forçar posição inicial */
+  scroll-behavior: smooth;
 }
 
-.appearance-options {
+/* Modal Header */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 28px; /* Aumentar padding horizontal */
+  border-bottom: 1px solid #e9ecef;
+  background: #f8f9fa;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #212529;
+  display: flex;
+  align-items: center;
+}
+
+.modal-title .MuiSvgIcon-root {
+  font-size: 1.5rem !important;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+}
+
+.modal-close:hover {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.modal-close .MuiSvgIcon-root {
+  font-size: 20px !important;
+}
+
+/* Modal Content */
+.modal-content {
+  padding: 28px; /* Aumentar padding */
+  overflow-y: auto;
+  flex: 1;
+}
+
+.config-section {
   margin-bottom: 32px;
 }
 
-.appearance-label {
+.config-section:last-child {
+  margin-bottom: 0;
+}
+
+.config-section h4 {
+  margin: 0 0 20px 0; /* Aumentar margin-bottom */
   font-size: 1.1rem;
+  font-weight: 600;
+  color: #343a40;
   display: flex;
   align-items: center;
+  gap: 10px; /* Aumentar gap entre ícone e texto */
+}
+
+.config-section h4 .MuiSvgIcon-root {
+  font-size: 1.1rem !important;
+}
+
+/* Topics Grid */
+.topics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 12px;
 }
 
-.palette-popup {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: #fff;
-  color: #222;
-  padding: 32px 24px;
-  border-radius: 12px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.1);
-  z-index: 1100;
-  min-width: 320px;
+.topic-item {
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  padding: 20px; /* Aumentar padding */
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
 }
 
-.search-filter-container {
+.topic-item:hover {
+  border-color: #dee2e6;
+  background: #f1f3f4;
+}
+
+.topic-item.selected {
+  border-color: #0d6efd;
+  background: #e7f1ff;
+}
+
+.topic-item label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  margin: 0;
+  font-weight: 500;
+  color: #495057;
+  gap: 16px; /* Aumentar gap */
+}
+
+.topic-item.selected label {
+  color: #0d6efd;
+}
+
+.topic-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #0d6efd;
+  cursor: pointer;
+}
+
+/* Select Inputs */
+.config-section select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  color: #495057;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.config-section select:focus {
+  outline: none;
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+}
+
+.config-section select:hover {
+  border-color: #dee2e6;
+}
+
+/* Modal Footer */
+.modal-footer {
+  display: flex;
+  gap: 12px;
+  padding: 24px 28px; /* Aumentar padding horizontal */
+  border-top: 1px solid #e9ecef;
+  background: #f8f9fa;
+  justify-content: flex-end;
+}
+
+/* Buttons */
+.btn-primary,
+.btn-secondary {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  min-width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: #0d6efd;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #0b5ed7;
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: white;
+  color: #6c757d;
+  border: 2px solid #e9ecef;
+}
+
+.btn-secondary:hover {
+  background: #f8f9fa;
+  border-color: #dee2e6;
+  color: #495057;
+}
+
+/* Garantir que ícones do Material-UI tenham o tamanho correto */
+.btn-primary .MuiSvgIcon-root,
+.btn-secondary .MuiSvgIcon-root {
+  font-size: 1rem !important;
+}
+
+/* Loading State */
+.btn-primary:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .modal {
+    margin: 0;
+    max-width: none;
+    height: 100vh;
+    border-radius: 0;
+  }
+  
+  .modal-overlay {
+    padding: 0;
+  }
+  
+  .topics-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .modal-footer {
+    flex-direction: column;
+  }
+  
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+  }
+}
+
+/* Dark Theme Support */
+@media (prefers-color-scheme: dark) {
+  .modal {
+    background: #212529;
+    color: #f8f9fa;
+  }
+  
+  .modal-header,
+  .modal-footer {
+    background: #343a40;
+    border-color: #495057;
+  }
+  
+  .modal-title {
+    color: #f8f9fa;
+  }
+  
+  .topic-item {
+    background: #343a40;
+    border-color: #495057;
+  }
+  
+  .topic-item:hover {
+    background: #495057;
+  }
+  
+  .topic-item.selected {
+    background: #1e3a5f;
+    border-color: #0d6efd;
+  }
+  
+  .config-section select {
+    background: #343a40;
+    border-color: #495057;
+    color: #f8f9fa;
+  }
+  
+  .btn-secondary {
+    background: #343a40;
+    color: #f8f9fa;
+    border-color: #495057;
+  }
+  
+  .btn-secondary:hover {
+    background: #495057;
+  }
+}
+
+/* Accessibility Improvements */
+.topic-item:focus-within {
+  outline: 2px solid #0d6efd;
+  outline-offset: 2px;
+}
+
+.modal-close:focus {
+  outline: 2px solid #0d6efd;
+  outline-offset: 2px;
+}
+
+.btn-primary:focus,
+.btn-secondary:focus,
+.config-section select:focus {
+  outline: 2px solid #0d6efd;
+  outline-offset: 2px;
+}
+
+/* Animation for checkbox state */
+.topic-item input[type="checkbox"] {
+  transition: all 0.2s ease;
+}
+
+/* Badge for topic count */
+.topics-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 16px;
+}
+
+.selected-count {
+  background: #e7f1ff;
+  color: #0d6efd;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* ====== ESTILOS ESPECÍFICOS PARA ADD WIDGET MODAL ====== */
+
+.add-widget-modal {
+  max-width: 650px; /* Aumentar um pouco a largura */
+  max-height: 85vh;
+  /* Garantir que o modal seja centralizado corretamente */
+  margin: 0 auto;
+}
+
+/* Modal Content - Aumentar padding conforme instruções */
+.add-widget-modal .modal-content {
+  padding: 32px; /* Aumentar padding para melhor espaçamento */
+}
+
+/* Config Section - Melhor espaçamento entre seções */
+.add-widget-modal .config-section {
+  margin-bottom: 36px; /* Aumentar espaçamento entre seções */
+}
+
+.add-widget-modal .config-section:last-child {
+  margin-bottom: 0;
+}
+
+/* Descrições das seções para melhor orientação */
+.section-description {
+  color: #6c757d;
+  fontSize: 0.9rem;
+  marginBottom: 20px;
+  lineHeight: 1.4;
+  padding: 0 4px; /* Pequeno padding para alinhamento */
+}
+
+/* Search Container - Melhor espaçamento */
+.search-container {
+  position: relative;
+  margin-bottom: 20px; /* Aumentar margem */
+}
+
+.search-container .search-icon {
+  position: absolute;
+  left: 16px; /* Aumentar distância da borda */
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+  pointer-events: none;
 }
 
 .search-input {
   width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  margin-bottom: 12px;
+  padding: 16px 20px 16px 52px; /* Aumentar padding interno */
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  fontSize: 1rem;
+  background: white;
+  color: #495057;
+  transition: border-color 0.2s ease;
 }
 
+.search-input:focus {
+  outline: none;
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+}
+
+.search-input:hover {
+  border-color: #dee2e6;
+}
+
+.search-input::placeholder {
+  color: #6c757d;
+}
+
+/* Category Tabs - Melhor espaçamento */
 .category-tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); /* Aumentar largura mínima */
+  gap: 14px; /* Aumentar gap */
+  margin-bottom: 20px; /* Aumentar margem */
 }
 
 .category-tab {
-  padding: 6px 12px;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
-  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px; /* Aumentar gap entre ícone e texto */
+  padding: 14px 18px; /* Aumentar padding */
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  background: white;
+  color: #6c757d;
+  fontSize: 0.9rem;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.category-tab:hover {
+  border-color: #dee2e6;
+  background: #f8f9fa;
+  transform: translateY(-1px);
 }
 
 .category-tab.active {
-  background: #007bff;
-  color: white;
-  border-color: #007bff;
+  border-color: #0d6efd;
+  background: #e7f1ff;
+  color: #0d6efd;
+  box-shadow: 0 2px 4px rgba(13, 110, 253, 0.1);
 }
 
+.category-tab:focus {
+  outline: 2px solid #0d6efd;
+  outline-offset: 2px;
+}
+
+/* Widgets Grid - Melhor espaçamento */
 .widget-list-container {
-  max-height: 400px;
+  min-height: 220px; /* Aumentar altura mínima */
+  max-height: 320px; /* Aumentar altura máxima */
+  overflow-y: auto;
+  overflow-x: hidden; /* Prevenir scroll horizontal */
+  border: 1px solid #e9ecef;
+  border-radius: 10px; /* Arredondar um pouco mais */
+  padding: 24px; /* Aumentar padding interno */
+  background: #fafbfc;
+  margin-top: 8px; /* Adicionar margem superior */
+  /* Garantir posicionamento inicial correto */
+  scroll-behavior: smooth;
+  position: relative;
+}
+
+.widgets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Aumentar largura mínima */
+  gap: 16px; /* Aumentar gap */
+  /* Garantir que não haja overflow horizontal */
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Adicionar ao final do arquivo */
+
+/* Prevenir scroll horizontal em todos os elementos do modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px); 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+  animation: fadeIn 0.2s ease-out;
+  /* Prevenir scroll horizontal */
+  overflow-x: hidden;
   overflow-y: auto;
 }
 
-.widget-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+/* Garantir que elementos não ultrapassem os limites */
+.modal * {
+  box-sizing: border-box;
 }
 
-.widget-list-item {
-  margin-bottom: 8px;
+/* Específico para elementos que podem causar overflow */
+.search-input,
+.category-tab,
+.widget-card-option {
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
-.widget-option {
+/* Garantir que o grid não cause overflow */
+.widgets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  width: 100%;
+  overflow: hidden; /* Prevenir overflow do grid */
+}
+
+/* Media query para garantir responsividade */
+@media (max-width: 700px) {
+  .widgets-grid {
+    grid-template-columns: 1fr; /* Uma coluna em telas pequenas */
+  }
+  
+  .add-widget-modal {
+    max-width: calc(100vw - 32px); /* Garantir que caiba na tela */
+  }
+}
+
+.widget-card-option {
+  background: white;
+  border: 2px solid #e9ecef;
+  border-radius: 10px; /* Arredondar mais */
+  padding: 24px; /* Aumentar padding significativamente */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 18px; /* Aumentar gap entre ícone e conteúdo */
+}
+
+.widget-card-option:hover {
+  border-color: #dee2e6;
+  background: #f8f9fa;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.widget-card-option.selected {
+  border-color: #0d6efd;
+  background: #e7f1ff;
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+}
+
+.widget-card-option:focus {
+  outline: 2px solid #0d6efd;
+  outline-offset: 2px;
+}
+
+.widget-card-icon {
+  font-size: 2rem;
+  width: 52px; /* Aumentar tamanho do ícone */
+  height: 52px;
   display: flex;
   align-items: center;
-  padding: 12px;
-  width: 100%;
-  text-align: left;
+  justify-content: center;
   background: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
-  cursor: pointer;
+  border-radius: 10px;
+  flex-shrink: 0;
+  border: 1px solid #e9ecef;
 }
 
-.widget-option.selected {
-  background: #e9f5ff;
-  border-color: #007bff;
+.widget-card-option.selected .widget-card-icon {
+  background: #e7f1ff;
+  border-color: #0d6efd;
 }
 
-.widget-option:hover {
-  background: #e9ecef;
+.widget-card-info {
+  flex: 1;
+  min-width: 0;
+  padding-top: 2px; /* Pequeno ajuste para alinhamento */
 }
 
-.widget-icon {
-  font-size: 1.5rem;
-  margin-right: 12px;
-}
-
-.widget-option-info {
-  flex-grow: 1;
-}
-
-.widget-option-name {
-  display: block;
+.widget-card-name {
+  margin: 0 0 8px 0; /* Aumentar margem inferior */
+  font-size: 1.1rem; /* Aumentar tamanho da fonte */
   font-weight: 600;
-  margin-bottom: 4px;
+  color: #212529;
+  line-height: 1.2;
 }
 
-.widget-option-desc {
-  display: block;
-  font-size: 0.9rem;
+.widget-card-desc {
+  margin: 0 0 12px 0; /* Aumentar margem inferior */
+  font-size: 0.9rem; /* Aumentar um pouco a fonte */
   color: #6c757d;
+  line-height: 1.4; /* Melhorar legibilidade */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.loading-state, .error-state, .empty-state {
+.widget-card-category {
+  font-size: 0.75rem;
+  color: #495057;
+  background: #e9ecef;
+  padding: 4px 10px; /* Aumentar padding */
+  border-radius: 14px; /* Arredondar mais */
+  font-weight: 500;
+  display: inline-block;
+  border: 1px solid #dee2e6;
+}
+
+.widget-card-option.selected .widget-card-category {
+  background: #0d6efd;
+  color: white;
+  border-color: #0d6efd;
+}
+
+.widget-card-selected {
+  position: absolute;
+  top: 12px; /* Ajustar posição */
+  right: 12px;
+  width: 28px; /* Aumentar tamanho */
+  height: 28px;
+  background: #0d6efd;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem; /* Aumentar tamanho da fonte */
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(13, 110, 253, 0.3);
+}
+
+/* Loading State - Melhor espaçamento */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 30px; /* Aumentar padding */
   text-align: center;
-  padding: 24px;
+}
+
+.loader {
+  width: 36px; /* Aumentar tamanho */
+  height: 36px;
+  border: 3px solid #e9ecef;
+  border-top: 3px solid #0d6efd;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px; /* Aumentar margem */
+}
+
+.loading-state p {
+  margin: 0;
   color: #6c757d;
+  font-size: 1rem; /* Aumentar fonte */
+}
+
+/* Error State - Melhor espaçamento */
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 30px; /* Aumentar padding */
+  text-align: center;
+}
+
+.error-state p {
+  margin: 0 0 20px 0; /* Aumentar margem */
+  color: #dc3545;
+  font-size: 1rem; /* Aumentar fonte */
+}
+
+/* Empty State - Melhor espaçamento */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 30px; /* Aumentar padding */
+  text-align: center;
+}
+
+.empty-state p {
+  margin: 0 0 20px 0; /* Aumentar margem */
+  color: #6c757d;
+  font-size: 1rem; /* Aumentar fonte */
+}
+
+/* Error Message - Melhor espaçamento */
+.error-message {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px; /* Aumentar padding */
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  color: #721c24;
+  margin-bottom: 24px; /* Aumentar margem */
+  position: relative;
+}
+
+.error-close-btn {
+  background: none;
+  border: none;
+  color: #721c24;
+  cursor: pointer;
+  padding: 8px; /* Aumentar área clicável */
+  border-radius: 4px;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-close-btn:hover {
+  background: rgba(114, 28, 36, 0.1);
+}
+
+/* Headers das seções - Melhor espaçamento */
+.add-widget-modal .config-section h4 {
+  margin: 0 0 12px 0; /* Ajustar margem */
+  font-size: 1.2rem; /* Aumentar fonte do título */
+  font-weight: 600;
+  color: #343a40;
+  display: flex;
+  align-items: center;
+  gap: 12px; /* Aumentar gap */
+}
+
+/* Responsive Design for Add Widget Modal */
+@media (max-width: 640px) {
+  .add-widget-modal {
+    max-width: none;
+    height: 100vh;
+    border-radius: 0;
+  }
+  
+  .add-widget-modal .modal-content {
+    padding: 24px 20px; /* Reduzir padding em mobile */
+  }
+  
+  .widgets-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .category-tabs {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  
+  .widget-list-container {
+    max-height: 280px;
+    padding: 16px; /* Reduzir padding em mobile */
+  }
+  
+  .widget-card-option {
+    padding: 16px; /* Reduzir padding em mobile */
+    gap: 14px;
+  }
+  
+  .widget-card-icon {
+    width: 44px;
+    height: 44px;
+    font-size: 1.8rem;
+  }
+  
+  .category-tab {
+    padding: 12px 14px;
+    gap: 8px;
+  }
+  
+  .search-input {
+    padding: 14px 16px 14px 48px;
+  }
+}
+
+/* Animation keyframes */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

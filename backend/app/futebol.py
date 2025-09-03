@@ -14,7 +14,12 @@ import unicodedata
 # Config & Logging
 # ------------------------------------------------------------------------------
 
-logging.basicConfig(level=logging.INFO)
+# Configure more detailed logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
 logger = logging.getLogger("futebol_api")
 logger.setLevel(logging.INFO)
 
@@ -457,6 +462,23 @@ async def proximas_partidas_competicao(
     cache.set(cache_key, partidas)
     return partidas
 
+# Adicionar um middleware para logar detalhes das requisições
+#@router.middleware("http")
+#async def log_requests(request, call_next):
+#    client = request.client.host
+#    path = request.url.path
+#    query = request.url.query
+#    
+#    logger.info(f"REQUEST: {client} - {request.method} {path}?{query}")
+#    
+#    # Processar a requisição e capturar o tempo
+#    start_time = time.time()
+#    response = await call_next(request)
+#    process_time = time.time() - start_time
+#    
+#    logger.info(f"RESPONSE: {client} - {request.method} {path} - Status: {response.status_code} - Tempo: {process_time:.3f}s")
+#    return response
+
 # ------------------------------------------------------------------------------
 # Notas:
 # - Configure FOOTBALL_DATA_API_TOKEN no ambiente.
@@ -465,3 +487,4 @@ async def proximas_partidas_competicao(
 # - Os horários são retornados em UTC. Converta no frontend conforme fuso do usuário.
 # - O campo 'estadio' não é fornecido por esse endpoint; mantemos string vazia para compatibilidade.
 # ------------------------------------------------------------------------------
+

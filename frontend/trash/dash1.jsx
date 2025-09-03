@@ -7,21 +7,29 @@ import WidgetCard from "./WidgetCard";
 import AddWidgetModal from "./AddWidgetModal";
 import AppearanceModal from "./AppearanceModal";
 import Notification from './Notification';
-// Importar o modal de configuração do WidgetJogos
-import WidgetJogosConfig from "./widgets/WidgetJogosConfig";
-import WidgetNewsConfig from "./widgets/WidgetNewsConfig";
-import WidgetShortcutsConfig from "./widgets/WidgetShortcutsConfig";
 import './styles/dashboard.css';
 import './styles/components/header.css';
 import './styles/components/buttons.css';
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
+import WidgetNewsConfig from './widgets/WidgetNewsConfig';
+import WidgetJogosConfig from './widgets/WidgetJogosConfig';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 // API key para OpenWeatherMap (gratuita)
 const WEATHER_API_KEY = "71ce78b06a4152f39338f99f315bd92b"; // Obtenha em: https://openweathermap.org/api
 
+// Registry de tipos de widgets com seus tamanhos padrão e mínimos
+const WIDGET_DEFAULTS = {
+  1: { defaultW: 3, defaultH: 3, minW: 3, minH: 3, maxW: 4 }, // Notícias
+  2: { defaultW: 3, defaultH: 2, minW: 3, minH: 2, maxW: 4 }, // Lista de Compras
+  3: { defaultW: 3, defaultH: 3, minW: 3, minH: 2, maxW: 4 }, // Lembretes
+  4: { defaultW: 3, defaultH: 2, minW: 3, minH: 2, maxW: 4 }, // Saúde
+  5: { defaultW: 3, defaultH: 3, minW: 3, minH: 3, maxW: 4 }, // Jogos
+};
+
+// Defina a constante no início do arquivo, antes do componente Dashboard
 const CLUBES_SERIE_A = [
   { id: 1776, nome: "São Paulo", escudo: "https://logodetimes.com/times/sao-paulo/logo-sao-paulo-256.png" },
   { id: 1765, nome: "Fluminense", escudo: "https://logodetimes.com/times/fluminense/logo-fluminense-256.png" },
@@ -43,33 +51,6 @@ const CLUBES_SERIE_A = [
   { id: 4364, nome: "Mirassol", escudo: "https://logodetimes.com/times/mirassol/logo-mirassol-256.png" },
   { id: 6684, nome: "Internacional", escudo: "https://logodetimes.com/times/internacional/logo-internacional-256.png" },
   { id: 6685, nome: "Santos", escudo: "https://logodetimes.com/times/santos/logo-santos-256.png" }
-];
-
-// Registry de tipos de widgets com seus tamanhos padrão e mínimos
-const WIDGET_DEFAULTS = {
-  1: { defaultW: 3, defaultH: 3, minW: 3, minH: 3, maxW: 4 }, // Notícias
-  2: { defaultW: 3, defaultH: 2, minW: 3, minH: 2, maxW: 4 }, // Lista de Compras
-  3: { defaultW: 3, defaultH: 3, minW: 3, minH: 2, maxW: 4 }, // Lembretes
-  4: { defaultW: 3, defaultH: 2, minW: 3, minH: 2, maxW: 4 }, // Saúde
-  5: { defaultW: 3, defaultH: 3, minW: 3, minH: 3, maxW: 4 }, // 
-  6: { defaultW: 3, defaultH: 3, minW: 3, minH: 3, maxW: 4 }, // 
-  7: { defaultW: 3, defaultH: 3, minW: 3, minH: 3, maxW: 4 }, // 
-  8: { defaultW: 3, defaultH: 3, minW: 3, minH: 3, maxW: 4 }, // Ideias
-  9: { defaultW: 3, defaultH: 3, minW: 3, minH: 3, maxW: 4 }, // Atalhos
-  10: { defaultW: 3, defaultH: 3, minW: 3, minH: 3, maxW: 4 }, // Jogos
-  11: { defaultW: 3, defaultH: 3, minW: 3, minH: 3, maxW: 4 }, // 
-  12: { defaultW: 3, defaultH: 3, minW: 3, minH: 3, maxW: 4 }, // 
-};
-
-// ADICIONAR TÓPICOS DISPONÍVEIS PARA NOTÍCIAS
-const AVAILABLE_TOPICS = [
-  { id: "technology", name: "Tecnologia" },
-  { id: "business", name: "Finanças" },
-  { id: "health", name: "Saúde" },
-  { id: "science", name: "Ciência" },
-  { id: "sports", name: "Esportes" },
-  { id: "entertainment", name: "Entretenimento" },
-  { id: "general", name: "Geral" }
 ];
 
 export default function Dashboard() {
@@ -99,14 +80,13 @@ export default function Dashboard() {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
 
-  // ADICIONAR NOVOS ESTADOS PARA CONFIGURAÇÃO DE WIDGETS
-  const [showJogosConfig, setShowJogosConfig] = useState(false);
-  const [jogosConfigWidget, setJogosConfigWidget] = useState(null);
+  // Novos estados para configuração de widgets
+  const [configWidget, setConfigWidget] = useState(null);
   const [showNewsConfig, setShowNewsConfig] = useState(false);
-  const [newsConfigWidget, setNewsConfigWidget] = useState(null);
-
-  const [showShortcutsConfig, setShowShortcutsConfig] = useState(false);
-  const [shortcutsConfigWidget, setShortcutsConfigWidget] = useState(null);
+  const [showJogosConfig, setShowJogosConfig] = useState(false);
+  const [showRemindersConfig, setShowRemindersConfig] = useState(false);
+  const [showHealthConfig, setShowHealthConfig] = useState(false);
+  const [showShoppingListConfig, setShowShoppingListConfig] = useState(false);
 
   // Carrega o layout salvo no localStorage quando o componente é montado
   useEffect(() => {
@@ -337,114 +317,239 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  // Função para adicionar um widget
-  const handleWidgetAdded = (newWidget) => {
-    // Obter as configurações de tamanho para este tipo de widget
-    const widgetType = newWidget.widget_id;
-    const {
-      defaultW = 4,
-      defaultH = 2,
-      minW = 3,
-      minH = 2,
-      maxW = 4
-    } = WIDGET_DEFAULTS[widgetType] || {};
+  const isSpaceAvailable = (layout, x, y, w, h) => {
+  if (!layout || layout.length === 0) return true;
+  
+  // Verifica se o espaço está livre
+  for (let i = 0; i < layout.length; i++) {
+    const l = layout[i];
+    // Verificar sobreposição
+    if (x < l.x + l.w && l.x < x + w && y < l.y + l.h && l.y < y + h) {
+      return false; // há sobreposição
+    }
+  }
+  return true; // espaço está livre
+  };
 
-    // Criar um novo item para a grade
-    const widgetId = nextWidgetId.toString();
-    const newItem = {
-      ...newWidget,
-      i: widgetId,
-    };
-
-    // Função melhorada para calcular posicionamento em grade
-    const calcGridPosition = (layout, cols) => {
-      // Se não há widgets, começar no topo esquerdo
-      if (!layout || layout.length === 0) return { x: 0, y: 0 };
-
-      // Organizar os widgets por linha (y)
-      let rows = {};
-      layout.forEach(item => {
-        if (!rows[item.y]) rows[item.y] = [];
-        rows[item.y].push({
-          x: item.x,
-          w: item.w,
-          right: item.x + item.w
-        });
-      });
-
-      // Definir tamanho do widget baseado no breakpoint
-      const widgetWidth = cols === 12 ? 3 : (cols === 6 ? 3 : 1);
+  // Função para calcular a posição de novos widgets (priorizando posicionamento horizontal)
+const calcGridPosition = (layout, cols) => {
+  // Se não há widgets, começar no topo esquerdo
+  if (!layout || layout.length === 0) return { x: 0, y: 0 };
+  
+  // Definir largura padrão baseado no breakpoint
+  const defaultWidgetWidth = cols === 12 ? 3 : (cols === 6 ? 3 : 1);
+  
+  // Mapeamento das posições ocupadas por linha
+  const occupiedPositions = {};
+  layout.forEach(item => {
+    const itemEndX = item.x + item.w;
+    const itemEndY = item.y + item.h;
+    
+    // Para cada célula ocupada por este widget
+    for (let y = item.y; y < itemEndY; y++) {
+      if (!occupiedPositions[y]) occupiedPositions[y] = [];
       
-      // Verificar cada linha começando do topo
-      const rowKeys = Object.keys(rows).map(Number).sort((a, b) => a - b);
-      
-      // Primeiro, tentamos encontrar espaço em linhas existentes
-      for (const y of rowKeys) {
-        const rowItems = rows[y].sort((a, b) => a.x - b.x);
-        
-        // Verificar espaço no início da linha
-        if (rowItems[0] && rowItems[0].x >= widgetWidth) {
-          return { x: 0, y };
+      for (let x = item.x; x < itemEndX; x++) {
+        occupiedPositions[y].push(x);
+      }
+    }
+  });
+  
+  // Primeiro, verificar se há espaço na linha superior (y=0)
+  if (!occupiedPositions[0] || occupiedPositions[0].length === 0) {
+    return { x: 0, y: 0 };
+  }
+  
+  // Verificar espaço na primeira linha
+  const firstRowPositions = occupiedPositions[0] || [];
+  
+  // Se a primeira linha tem menos de 12 (desktop) ou 6 (tablet) posições ocupadas
+  if (firstRowPositions.length < cols) {
+    // Encontrar o próximo x disponível na primeira linha
+    const sortedPositions = [...firstRowPositions].sort((a, b) => a - b);
+    
+    // Verificar se há lacunas no início ou entre posições
+    for (let x = 0; x < cols; x += defaultWidgetWidth) {
+      if (!sortedPositions.includes(x) && 
+          !sortedPositions.some(pos => pos > x && pos < x + defaultWidgetWidth)) {
+        // Verificar se há espaço suficiente
+        if (x + defaultWidgetWidth <= cols) {
+          return { x, y: 0 };
         }
-        
-        // Verificar espaços entre os widgets
-        for (let i = 0; i < rowItems.length - 1; i++) {
-          const gap = rowItems[i + 1].x - rowItems[i].right;
-          if (gap >= widgetWidth) {
-            return { x: rowItems[i].right, y };
+      }
+    }
+    
+    // Se não encontrou lacunas, verificar no final da primeira linha
+    const maxX = Math.max(...sortedPositions);
+    if (maxX + defaultWidgetWidth < cols) {
+      return { x: maxX + 1, y: 0 };
+    }
+  }
+  
+  // Se não há espaço na primeira linha, verificar outras linhas existentes
+  const rows = Object.keys(occupiedPositions)
+    .map(Number)
+    .sort((a, b) => a - b);
+  
+  for (const y of rows) {
+    const rowPositions = occupiedPositions[y] || [];
+    if (rowPositions.length < cols) {
+      // Há espaço nesta linha
+      const sortedPositions = [...rowPositions].sort((a, b) => a - b);
+      
+      // Verificar lacunas
+      for (let x = 0; x < cols; x += defaultWidgetWidth) {
+        if (!sortedPositions.includes(x) && 
+            !sortedPositions.some(pos => pos > x && pos < x + defaultWidgetWidth)) {
+          if (x + defaultWidgetWidth <= cols) {
+            return { x, y };
           }
-        }
-        
-        // Verificar espaço no final da linha
-        const lastItem = rowItems[rowItems.length - 1];
-        // Garantir espaço suficiente para este widget, respeitando o número de colunas
-        if (lastItem.right + widgetWidth <= cols) {
-          return { x: lastItem.right, y };
         }
       }
       
-      // Se não encontrou espaço em nenhuma linha existente, criar nova linha
-      return { x: 0, y: rowKeys.length > 0 ? Math.max(...rowKeys) + 1 : 0 };
-    };
+      // Verificar no final da linha
+      const maxX = Math.max(...sortedPositions);
+      if (maxX + defaultWidgetWidth < cols) {
+        return { x: maxX + 1, y };
+      }
+    }
+  }
+  
+  // Se não encontrou espaço em linhas existentes, criar uma nova linha
+  const maxRow = rows.length > 0 ? Math.max(...rows) : -1;
+  return { x: 0, y: maxRow + 1 };
+};
 
-    // Calcular posições específicas para cada breakpoint
-    const lgPos = calcGridPosition(layouts.lg || [], 12);
-    const mdPos = calcGridPosition(layouts.md || [], 6);
-    const smPos = calcGridPosition(layouts.sm || [], 1);
+  // Função unificada para adicionar widgets
+const handleWidgetAdded = (newWidget) => {
+  console.log("Adicionando novo widget:", newWidget);
+  
+  // Obter as configurações de tamanho para este tipo de widget
+  const widgetType = newWidget.widget_id;
+  const {
+    defaultW = 3,
+    defaultH = 2,
+    minW = 3,
+    minH = 2,
+    maxW = 4
+  } = WIDGET_DEFAULTS[widgetType] || {};
 
-    // Criar layouts para cada breakpoint
-    const lgLayout = {
-      i: widgetId,
-      x: lgPos.x,
-      y: lgPos.y,
-      w: 4, 
-      h: defaultH,
-      minW,
-      minH,
-      maxW
-    };
+  // Criar um novo item para a grade
+  const widgetId = nextWidgetId.toString();
+  const newItem = {
+    ...newWidget,
+    i: widgetId,
+  };
 
-    const mdLayout = {
-      i: widgetId,
-      x: mdPos.x,
-      y: mdPos.y,
-      w: Math.min(defaultW, 3), // Máximo 3 colunas para permitir 2 por linha
-      h: defaultH,
-      minW: Math.min(minW, 3),
-      minH,
-      maxW: 3
-    };
+  // Calcular posições para cada breakpoint
+  const lgPos = calcGridPosition(layouts.lg || [], 12);
+  const mdPos = calcGridPosition(layouts.md || [], 6);
+  const smPos = calcGridPosition(layouts.sm || [], 1);
+  
+  console.log("Nova posição calculada:", { lgPos, mdPos, smPos });
 
-    const smLayout = {
-      i: widgetId,
-      x: smPos.x,
-      y: smPos.y,
-      w: 1, // Em mobile, sempre ocupa a largura total
-      h: defaultH,
-      minW: 1,
-      minH,
-      maxW: 1
-    };
+  // Criar layouts para cada breakpoint
+  const lgLayout = {
+    i: widgetId,
+    x: lgPos.x,
+    y: lgPos.y,
+    w: 3,  // Fixa em 3 para garantir 4 widgets por linha (12/3 = 4)
+    h: defaultH,
+    minW,
+    minH,
+    maxW,
+    static: false
+  };
+
+  const mdLayout = {
+    i: widgetId,
+    x: mdPos.x,
+    y: mdPos.y,
+    w: 3,  // Em tablet, usar 3 colunas (6/3 = 2 widgets por linha)
+    h: defaultH,
+    minW: Math.min(minW, 3),
+    minH,
+    maxW: Math.min(maxW, 3)
+  };
+
+  const smLayout = {
+    i: widgetId,
+    x: 0, // Em mobile sempre começa em x=0
+    y: smPos.y,
+    w: 1, // Em mobile, sempre ocupa a largura total
+    h: defaultH,
+    minW: 1,
+    minH,
+    maxW: 1
+  };
+
+  // Atualizar estados
+  setWidgets(prevWidgets => [...prevWidgets, newItem]);
+  setLayouts(prevLayouts => ({
+    lg: [...(prevLayouts.lg || []), lgLayout],
+    md: [...(prevLayouts.md || []), mdLayout],
+    sm: [...(prevLayouts.sm || []), smLayout]
+  }));
+  
+  setNextWidgetId(nextWidgetId + 1);
+  setShowModal(false);
+  
+  showNotification(`Widget ${newWidget.name} adicionado com sucesso!`, "success");
+};
+    // Tentar encontrar uma posição na primeira linha primeiro
+    let lgPos = { x: 0, y: 0 };
+    
+    // Verificar espaços livres na linha 0 (topo)
+    for (let x = 0; x < 12; x += 3) {
+      if (isSpaceAvailable(layouts.lg || [], x, 0, 3, defaultH)) {
+        lgPos = { x, y: 0 };
+        break;
+      }
+    }
+    
+    // Se não encontrou na primeira linha, usar calcGridPosition
+    if (lgPos.y !== 0 || layouts.lg?.some(item => item.y === 0 && item.x === 0)) {
+      lgPos = calcGridPosition(layouts.lg || [], 12);
+    }
+    
+    // Calcular posições específicas para cada breakpoint de forma mais direta
+const mdPos = calcGridPosition(layouts.md || [], 6);
+const smPos = calcGridPosition(layouts.sm || [], 1);
+
+// Criar layouts explícitos para cada breakpoint
+const lgLayout = {
+  i: widgetId,
+  x: lgPos.x,
+  y: lgPos.y,
+  w: 3,  // Fixo em 3 para permitir 4 widgets por linha
+  h: defaultH,
+  minW,
+  minH,
+  maxW,
+  static: false // Garantir que não seja estático
+};
+
+const mdLayout = {
+  i: widgetId,
+  x: mdPos.x,
+  y: mdPos.y,
+  w: Math.min(3, 3),  // Fixo em 3 para permitir 2 widgets por linha em tablet
+  h: defaultH,
+  minW: Math.min(minW, 3),
+  minH,
+  maxW: 3
+};
+
+const smLayout = {
+  i: widgetId,
+  x: 0, // Em mobile sempre começa em x=0
+  y: layouts.sm ? layouts.sm.length : 0, // Em mobile, sempre adicionar abaixo do último
+  w: 1, // Em mobile, sempre ocupa a largura total
+  h: defaultH,
+  minW: 1,
+  minH,
+  maxW: 1
+};
 
     setWidgets(prevWidgets => [...prevWidgets, newItem]);
     setLayouts(prevLayouts => ({
@@ -494,173 +599,80 @@ export default function Dashboard() {
     setNotifications(prev => prev.filter(notification => notification.id !== id));
   };
 
-  // Anunciar mudanças para leitores de tela
-  const announceForAccessibility = (message) => {
-    const announcer = document.getElementById('accessibility-announcer');
-    if (announcer) {
-      announcer.textContent = message;
-    }
-  };
 
   // Função para atualizar um widget
   const handleRefreshWidget = (widgetId) => {
     console.log(`Atualizando widget ${widgetId}`);
-      
-    // Aqui você implementaria a lógica específica para cada tipo de widget
+
+    // Encontrar o widget específico
     const widget = widgets.find(w => w.i === widgetId);
-    if (widget) {
-      // Lógica específica por tipo de widget
-      if (widget.widget_id === 1) {
-        // Atualizar notícias
-      } else if (widget.widget_id === 5) {
-        // Atualizar jogos
-      }
+    if (!widget) {
+      console.error(`Widget ${widgetId} não encontrado`);
+      return;
     }
 
-    showNotification(`Widget atualizado`);
+    // Implementar lógica específica baseada no tipo de widget
+    if (widget.widget_id === 5) { // Widget de Jogos
+      if (!widget.config?.timeId) {
+        console.error("Nenhum timeId configurado para atualizar");
+        showNotification("Configure um time favorito primeiro", "warning");
+        return;
+      }
+
+      // Limpar o cache primeiro
+      fetch(`http://localhost:8000/api/futebol/cache/clear/times/${widget.config.timeId}`)
+        .then(response => response.json())
+        .then(data => {
+          console.log("Cache limpo com sucesso:", data);
+
+          // Atualizar o widget com novo timestamp para forçar re-renderização
+          const updatedWidgets = widgets.map(w => 
+            w.i === widgetId ? { ...w, refreshTimestamp: Date.now() } : w
+          );
+          setWidgets(updatedWidgets);
+
+          showNotification(`Dados do time atualizados`, "success");
+        })
+        .catch(err => {
+          console.error("Erro ao limpar cache:", err);
+          showNotification("Erro ao atualizar dados do time", "error");
+        });
+    } 
+    else {
+      // Comportamento padrão para outros widgets
+      const updatedWidgets = widgets.map(w => 
+        w.i === widgetId ? { ...w, refreshTimestamp: Date.now() } : w
+      );
+      setWidgets(updatedWidgets);
+      showNotification(`Widget atualizado`);
+    }
   };
-  
+
   const handleConfigureWidget = (widget) => {
     console.log(`Configurando widget ${widget.i}, tipo: ${widget.widget_id}`);
     
-    // Verificar o tipo do widget e abrir o modal apropriado
-    if (widget.widget_id === 10) { // Widget de Jogos
-      setJogosConfigWidget(widget);
-      setShowJogosConfig(true);
-    } else if (widget.widget_id === 1) { // Widget de Notícias
-      setNewsConfigWidget(widget);
-      setShowNewsConfig(true);
-    } else if (widget.widget_id === 9) { // Widget de Atalhos
-    setShortcutsConfigWidget(widget);
-    setShowShortcutsConfig(true);
-    } else if (widget.widget_id === 2) {
-      // Lista de compras em desenvolvimento
-      showNotification("Configuração de lista de compras em desenvolvimento", "info");
-    } else if (widget.widget_id === 3) {
-      // Lembretes em desenvolvimento
-      showNotification("Configuração de lembretes em desenvolvimento", "info");
-    } else if (widget.widget_id === 4) {
-      // Saúde em desenvolvimento
-      showNotification("Configuração de saúde em desenvolvimento", "info");
-    } else {
-      // Para outros widgets não implementados
-      showNotification(`Configuração para ${widget.name} em desenvolvimento`, "info");
-    }
-  };
-
-  // Adicionar função para salvar configuração de atalhos
-  const handleSaveShortcutsConfig = async (newConfig) => {
-    try {
-      console.log("🔗 Salvando configuração de atalhos:", newConfig);
-      const timestamp = Date.now();
-      console.log("🔗 Timestamp gerado:", timestamp);
-
-      // Atualizar o widget na lista
-      setWidgets(prevWidgets => {
-        const updatedWidgets = prevWidgets.map(w => 
-          w.i === shortcutsConfigWidget.i 
-            ? { 
-                ...w, 
-                config: newConfig,
-                refreshTimestamp: timestamp
-              }
-            : w
-        );
-        console.log("🔗 Widgets atualizados:", updatedWidgets);
-        return updatedWidgets;
-      });
-
-      // Salvar no localStorage
-      const savedConfig = {
-        ...newConfig,
-        widgetId: shortcutsConfigWidget.i,
-        timestamp: timestamp
-      };
-      localStorage.setItem(`widget_config_${shortcutsConfigWidget.i}`, JSON.stringify(savedConfig));
-      console.log("🔗 Config salva no localStorage:", savedConfig);
-
-      setShowShortcutsConfig(false);
-      setShortcutsConfigWidget(null);
-
-      showNotification("Configuração do widget de atalhos salva com sucesso!", "success");
-
-    } catch (error) {
-      console.error("🔗 Erro ao salvar configuração:", error);
-      showNotification("Erro ao salvar configuração", "error");
-    }
-  };
-
-  // NOVA FUNÇÃO PARA SALVAR CONFIGURAÇÃO DE JOGOS
-  const handleSaveJogosConfig = async (newConfig) => {
-    try {
-      console.log("Salvando configuração de jogos:", newConfig);
-      
-      // Atualizar o widget na lista
-      setWidgets(prevWidgets => 
-        prevWidgets.map(w => 
-          w.i === jogosConfigWidget.i 
-            ? { 
-                ...w, 
-                config: newConfig,
-                refreshTimestamp: Date.now(),
-                // Adicionar dados pré-carregados se disponíveis
-                preloadedData: newConfig.preloadedData || null
-              }
-            : w
-        )
-      );
-      
-      // Salvar no localStorage
-      const savedConfig = {
-        ...newConfig,
-        widgetId: jogosConfigWidget.i
-      };
-      localStorage.setItem(`widget_config_${jogosConfigWidget.i}`, JSON.stringify(savedConfig));
-      
-      setShowJogosConfig(false);
-      setJogosConfigWidget(null);
-      
-      showNotification("Configuração do widget de jogos salva com sucesso!", "success");
-      
-    } catch (error) {
-      console.error("Erro ao salvar configuração:", error);
-      showNotification("Erro ao salvar configuração", "error");
-    }
-  };
-
-  // NOVA FUNÇÃO PARA SALVAR CONFIGURAÇÃO DE NOTÍCIAS
-  const handleSaveNewsConfig = async (newConfig) => {
-    try {
-      console.log("Salvando configuração de notícias:", newConfig);
-      
-      // Atualizar o widget na lista
-      setWidgets(prevWidgets => 
-        prevWidgets.map(w => 
-          w.i === newsConfigWidget.i 
-            ? { 
-                ...w, 
-                config: newConfig,
-                refreshTimestamp: Date.now()
-              }
-            : w
-        )
-      );
-      
-      // Salvar no localStorage
-      const savedConfig = {
-        ...newConfig,
-        widgetId: newsConfigWidget.i
-      };
-      localStorage.setItem(`widget_config_${newsConfigWidget.i}`, JSON.stringify(savedConfig));
-      
-      setShowNewsConfig(false);
-      setNewsConfigWidget(null);
-      
-      showNotification("Configuração do widget de notícias salva com sucesso!", "success");
-      
-    } catch (error) {
-      console.error("Erro ao salvar configuração:", error);
-      showNotification("Erro ao salvar configuração", "error");
+    // Armazenar o widget que está sendo configurado
+    setConfigWidget(widget);
+    
+    // Abrir o modal de configuração específico para o tipo de widget
+    switch (widget.widget_id) {
+      case 1: // WidgetNews
+        setShowNewsConfig(true);
+        break;
+      case 2: // WidgetShoppingList
+        setShowShoppingListConfig(true);
+        break;
+      case 3: // WidgetReminders
+        setShowRemindersConfig(true);
+        break;
+      case 4: // WidgetHealth
+        setShowHealthConfig(true);
+        break;
+      case 5: // WidgetJogos
+        setShowJogosConfig(true);
+        break;
+      default:
+        showNotification(`Configuração não disponível para este widget`, "warning");
     }
   };
 
@@ -764,29 +776,17 @@ export default function Dashboard() {
             breakpoints={{ lg: 1025, md: 641, sm: 0 }}
             cols={{ lg: 12, md: 6, sm: 1 }}
             rowHeight={100}
-            //width={1440}
             containerPadding={[8, 8]}
             margin={[12, 16]}
             onLayoutChange={handleLayoutChange}
-            onDragStart={() => {
-              setIsDragging(true);
-              announceForAccessibility("Movendo widget. Use as setas para posicionar e Enter para confirmar.");
-            }}
-            onDragStop={() => {
-              setIsDragging(false);
-              announceForAccessibility("Widget reposicionado.");
-            }}
-            onResizeStart={() => {
-              setIsResizing(true);
-              announceForAccessibility("Redimensionando widget. Use Shift+setas para redimensionar e Enter para confirmar.");
-            }}
-            onResizeStop={() => {
-              setIsResizing(false);
-              announceForAccessibility("Widget redimensionado.");
-            }}
+            onDragStart={() => setIsDragging(true)}
+            onDragStop={() => setIsDragging(false)}
+            onResizeStart={() => setIsResizing(true)}
+            onResizeStop={() => setIsResizing(false)}
             draggableHandle=".widget-drag-handle"
+            resizeHandles={['se']}
             useCSSTransforms={true}
-            compactType="vertical"
+            compactType="vertical"  // Mudamos para "vertical" pois é mais previsível
             preventCollision={false}
             isBounded={true}
             isResizable={true}
@@ -830,42 +830,116 @@ export default function Dashboard() {
         />
       )}
 
-      {/* ADICIONAR O MODAL DE CONFIGURAÇÃO DE JOGOS APÓS OS OUTROS MODAIS */}
-      {showJogosConfig && jogosConfigWidget && (
-        <WidgetJogosConfig
-          config={jogosConfigWidget.config || {}}
-          onSave={handleSaveJogosConfig}
-          onCancel={() => {
-            setShowJogosConfig(false);
-            setJogosConfigWidget(null);
-          }}
-          clubesDisponiveis={CLUBES_SERIE_A}
-        />
-      )}
-
-      {/* ADICIONAR O MODAL DE CONFIGURAÇÃO DE NOTÍCIAS APÓS O MODAL DE JOGOS */}
-      {showNewsConfig && newsConfigWidget && (
+      {/* Modais de configuração dos widgets */}
+      {showNewsConfig && configWidget && (
         <WidgetNewsConfig
-          config={newsConfigWidget.config || {}}
-          topics={AVAILABLE_TOPICS}
-          onSave={handleSaveNewsConfig}
-          onCancel={() => {
+          config={configWidget.config || {}}
+          topics={[
+            { id: "technology", name: "Tecnologia" },
+            { id: "business", name: "Finanças" },
+            { id: "health", name: "Saúde" },
+            { id: "science", name: "Ciência" },
+            { id: "sports", name: "Esportes" },
+            { id: "entertainment", name: "Entretenimento" },
+            { id: "general", name: "Geral" }
+          ]}
+          onSave={(newConfig) => {
+            // Atualizar a configuração do widget
+            const updatedWidgets = widgets.map(w => 
+              w.i === configWidget.i ? { ...w, config: newConfig } : w
+            );
+            setWidgets(updatedWidgets);
             setShowNewsConfig(false);
-            setNewsConfigWidget(null);
+            showNotification("Configurações do widget salvas com sucesso", "success");
           }}
+          onCancel={() => setShowNewsConfig(false)}
         />
       )}
 
-      {showShortcutsConfig && shortcutsConfigWidget && (
-        <WidgetShortcutsConfig
-          config={shortcutsConfigWidget.config || {}}
-          onSave={handleSaveShortcutsConfig}
-          onCancel={() => {
-            setShowShortcutsConfig(false);
-            setShortcutsConfigWidget(null);
+      {showJogosConfig && configWidget && (
+        <WidgetJogosConfig
+          config={configWidget.config || {}}
+          clubesDisponiveis={CLUBES_SERIE_A}
+          onSave={(newConfig) => {
+            // Importante: Antes de qualquer atualização de estado ou UI,
+            // vamos limpar o cache e forçar a atualização dos dados usando a API diretamente
+            
+            if (newConfig.timeId) {
+              console.log(`[Dashboard] Forçando atualização para novo timeId: ${newConfig.timeId}`);
+              
+              // 1. Limpar o cache para o novo time APENAS (não o antigo)
+              fetch(`http://localhost:8000/api/futebol/cache/clear/times/${newConfig.timeId}`)
+                .then(response => response.json())
+                .then(() => {
+                  // 2. Buscar dados novos ANTES de atualizar a UI
+                  return Promise.all([
+                    fetch(`http://localhost:8000/api/futebol/times/${newConfig.timeId}/partidas/ultimas`).then(r => r.json()),
+                    fetch(`http://localhost:8000/api/futebol/times/${newConfig.timeId}/partidas/proximas`).then(r => r.json())
+                  ]);
+                })
+                .then(([ultimas, proximas]) => {
+                  console.log(`[Dashboard] Dados do novo time ${newConfig.timeId} carregados com sucesso:`, { 
+                    ultimas: ultimas.length, 
+                    proximas: proximas.length 
+                  });
+                  
+                  // 3. Agora podemos atualizar a UI com confiança que os dados estão prontos
+                  // Criar widget com a nova configuração E os dados pré-carregados
+                  const updatedWidget = {
+                    ...configWidget,
+                    config: newConfig,
+                    refreshTimestamp: Date.now(),
+                    preloadedData: {
+                      ultimas,
+                      proximas,
+                      loadedAt: Date.now()
+                    }
+                  };
+                  
+                  // 4. Atualizar o array de widgets
+                  const updatedWidgets = widgets.map(w => 
+                    w.i === configWidget.i ? updatedWidget : w
+                  );
+                  
+                  setWidgets(updatedWidgets);
+                  setShowJogosConfig(false);
+                  showNotification("Configurações e dados do time atualizados com sucesso", "success");
+                })
+                .catch(err => {
+                  console.error("Erro ao atualizar dados do time:", err);
+                  
+                  // Mesmo com erro, ainda atualizamos a config mas sem dados pré-carregados
+                  const updatedWidgets = widgets.map(w => 
+                    w.i === configWidget.i ? { ...w, config: newConfig, refreshTimestamp: Date.now() } : w
+                  );
+                  
+                  setWidgets(updatedWidgets);
+                  setShowJogosConfig(false);
+                  showNotification("Configurações salvas, mas houve um erro ao carregar dados do time", "warning");
+                });
+            } else {
+              // Caso não tenha timeId, apenas atualizamos a config normalmente
+              const updatedWidgets = widgets.map(w => 
+                w.i === configWidget.i ? { ...w, config: newConfig, refreshTimestamp: Date.now() } : w
+              );
+              
+              setWidgets(updatedWidgets);
+              setShowJogosConfig(false);
+              showNotification("Configurações do widget salvas com sucesso", "success");
+            }
           }}
+          onCancel={() => setShowJogosConfig(false)}
         />
       )}
+
+      {/* Configuração de Lembretes - ainda não implementada */}
+      {showRemindersConfig && configWidget && null}
+
+      {/* Configuração de Saúde - ainda não implementada */}
+      {showHealthConfig && configWidget && null}
+
+      {/* Configuração de Lista de Compras - ainda não implementada */}
+      {showShoppingListConfig && configWidget && null}
 
       {/* Notificações */}
       {notifications.map(({ id, message, type }) => (
@@ -890,4 +964,3 @@ export default function Dashboard() {
       </footer>
     </div>
   );
-}

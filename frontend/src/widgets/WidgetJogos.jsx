@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import WidgetJogosConfig from "./WidgetJogosConfig";
+// Remover esta importação que não será mais usada diretamente aqui
+// import WidgetJogosConfig from "./WidgetJogosConfig";
 import axios from "axios";
-import * as api from "../api"; // Importando da pasta src em vez de widgets
+import * as api from "../api";
 import '../styles/widgets/jogos.css';
 
 // Lista dos clubes do Brasileirão Série A
@@ -50,7 +51,7 @@ const toLocalDate = (datePart, timePart) => {
 };
 
 // Componente principal do widget
-export default function WidgetJogos({ data, onRemove }) {
+export default function WidgetJogos({ data, onRemove, onConfigure }) {
   // Garantir que data sempre seja um objeto
   data = data || {};
 
@@ -58,7 +59,6 @@ export default function WidgetJogos({ data, onRemove }) {
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [showConfig, setShowConfig] = useState(false); // Não mostrar config primeiro se já tiver timeId
   const [ultimaPartida, setUltimaPartida] = useState(null);
   const [proximaPartida, setProximaPartida] = useState(null);
   const [timeoutId, setTimeoutId] = useState(null);
@@ -71,11 +71,26 @@ export default function WidgetJogos({ data, onRemove }) {
       showEscudos: true
     };
     
+    // MODIFICAÇÃO: Priorizar props.data.config sobre localStorage
     if (data?.config?.timeId) {
       return {
         ...defaultConfig,
         ...data.config
       };
+    }
+    
+    // Só usar localStorage se não houver configuração nas props
+    try {
+      const savedConfig = localStorage.getItem('jogosWidgetConfig');
+      if (savedConfig) {
+        const parsedConfig = JSON.parse(savedConfig);
+        return {
+          ...defaultConfig,
+          ...parsedConfig
+        };
+      }
+    } catch (error) {
+      logWithTime("Erro ao carregar configurações do localStorage:", error);
     }
     
     return defaultConfig;
@@ -84,9 +99,15 @@ export default function WidgetJogos({ data, onRemove }) {
   const isFirstRender = useRef(true);
   
   // Função para buscar jogos do time com timeout
-  const fetchJogosTime = async (timeId) => {
-    if (!timeId || requestInProgress.current) {
-      logWithTime(`Ignorando busca: timeId inválido ou requisição em andamento. TimeId: ${timeId}, Em andamento: ${requestInProgress.current}`);
+  const fetchJogosTime = async (forceTimeId) => {
+    // IMPORTANTE: Sempre usar o ID fornecido explicitamente, ignorando estado local
+    const timeIdToUse = forceTimeId; // Não mais || config.timeId
+    
+    // Log explícito para debugging
+    console.log(`[WidgetJogos] Iniciando fetchJogosTime com timeId explícito: ${timeIdToUse}`);
+    
+    if (!timeIdToUse || requestInProgress.current) {
+      logWithTime(`Ignorando busca: timeId inválido ou requisição em andamento. TimeId: ${timeIdToUse}, Em andamento: ${requestInProgress.current}`);
       return;
     }
     
@@ -102,7 +123,7 @@ export default function WidgetJogos({ data, onRemove }) {
     // Configurar novo timeout
     const id = setTimeout(() => {
       if (requestInProgress.current) {
-        logWithTime(`Timeout atingido para busca de dados do time ${timeId}`);
+        logWithTime(`Timeout atingido para busca de dados do time ${timeIdToUse}`);
         setLoading(false);
         setError("Tempo limite excedido. Não foi possível carregar os dados do time.");
         requestInProgress.current = false;
@@ -112,20 +133,23 @@ export default function WidgetJogos({ data, onRemove }) {
     setTimeoutId(id);
     
     try {
-      logWithTime(`Iniciando busca de partidas para time ID: ${timeId}`);
+      logWithTime(`Iniciando busca de partidas para time ID: ${timeIdToUse}`);
       
-      // Limpar cache primeiro para garantir dados atualizados
+      // Limpar cache primeiro - Agora usando o ID forçado
       try {
-        await axios.get(`${API_URL}/cache/clear/times/${timeId}`);
-        logWithTime("Cache limpo com sucesso");
+        const cacheResponse = await axios.get(`${API_URL}/cache/clear/times/${timeIdToUse}`);
+        logWithTime(`Cache do time ${timeIdToUse} limpo com sucesso:`, cacheResponse.data);
       } catch (cacheError) {
-        logWithTime("Erro ao limpar cache (continuando)", cacheError);
+        logWithTime(`Erro ao limpar cache para timeId ${timeIdToUse} (continuando):`, cacheError);
       }
       
-      // Buscar dados da API
+      // Adicionar um pequeno delay para garantir que o cache foi limpo no servidor
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      // Agora buscar dados frescos da API usando o ID forçado
       const [ultimaRes, proximaRes] = await Promise.all([
-        axios.get(`${API_URL}/times/${timeId}/partidas/ultimas`),
-        axios.get(`${API_URL}/times/${timeId}/partidas/proximas`)
+        axios.get(`${API_URL}/times/${timeIdToUse}/partidas/ultimas`),
+        axios.get(`${API_URL}/times/${timeIdToUse}/partidas/proximas`)
       ]);
       
       // Limpar timeout após sucesso
@@ -145,7 +169,7 @@ export default function WidgetJogos({ data, onRemove }) {
       
       // Se não temos dados de nenhuma partida, mostrar mensagem
       if (ultimaRes.data.length === 0 && proximaRes.data.length === 0) {
-        setError(`Não foram encontradas partidas para ${CLUBES_SERIE_A.find(t => t.id === parseInt(timeId))?.nome}. Os dados podem não estar disponíveis no momento.`);
+        setError(`Não foram encontradas partidas para ${CLUBES_SERIE_A.find(t => t.id === parseInt(timeIdToUse))?.nome}. Os dados podem não estar disponíveis no momento.`);
       }
       
       setLoading(false);
@@ -175,107 +199,122 @@ export default function WidgetJogos({ data, onRemove }) {
     }
   };
   
-  // Efeito para carregar jogos quando o componente montar ou quando a configuração mudar
+  // Efeito para carregar jogos quando o componente montar
   useEffect(() => {
-    // Carregar configuração salva do localStorage
+    // Verificar configuração ao iniciar
     if (isFirstRender.current) {
-      logWithTime("Primeira renderização, verificando configuração salva");
+      // Se já temos um timeId nas props ou no estado local, usamos ele
+      const timeIdToUse = data?.config?.timeId || config.timeId;
       
-      try {
-        const savedConfig = localStorage.getItem('jogosWidgetConfig');
-        if (savedConfig) {
-          const parsedConfig = JSON.parse(savedConfig);
-          logWithTime("Configuração encontrada no localStorage:", parsedConfig);
-          
-          setConfig(prevConfig => ({
-            ...prevConfig,
-            ...parsedConfig
-          }));
-          
-          // Se já temos um time salvo, podemos mostrar os dados dele
-          if (parsedConfig.timeId) {
-            logWithTime(`Time já configurado (ID: ${parsedConfig.timeId}), carregando dados`);
-            setShowConfig(false); // Não mostrar config se já temos timeId
-            
-            // Tentar limpar o cache primeiro
-            axios.get(`${API_URL}/cache/clear/times/${parsedConfig.timeId}`)
-              .then(() => {
-                logWithTime(`Cache do time ID ${parsedConfig.timeId} limpo com sucesso`);
-                setTimeout(() => fetchJogosTime(parsedConfig.timeId), 300);
-              })
-              .catch(error => {
-                logWithTime(`Erro ao limpar cache: ${error.message}`, error);
-                
-                // Tentar método alternativo - forçar atualização via endpoint refresh
-                logWithTime("Tentando refresh alternativo dos dados");
-                axios.post(`${API_URL}/times/${parsedConfig.timeId}/refresh`)
-                  .then(() => logWithTime("Refresh de dados solicitado com sucesso"))
-                  .catch(e => logWithTime("Erro no refresh alternativo", e));
-              
-                // Continuar com o fetch mesmo sem limpar o cache
-                setTimeout(() => fetchJogosTime(parsedConfig.timeId), 300);
-              });
-          } else {
-            logWithTime("Nenhum time configurado, exibindo tela de configuração");
-            setShowConfig(true);
-          }
-        } else {
-          logWithTime("Nenhuma configuração encontrada, exibindo tela de configuração");
-          setShowConfig(true);
-        }
+      if (timeIdToUse) {
+        logWithTime(`Inicializando widget com timeId: ${timeIdToUse}`);
         
-        isFirstRender.current = false;
-      } catch (error) {
-        logWithTime("Erro ao carregar configurações:", error);
-        setShowConfig(true);
+        // Tentar limpar o cache primeiro
+        axios.get(`${API_URL}/cache/clear/times/${timeIdToUse}`)
+          .then(() => {
+            logWithTime(`Cache do time ID ${timeIdToUse} limpo com sucesso`);
+            setTimeout(() => fetchJogosTime(timeIdToUse), 300);
+          })
+          .catch(error => {
+            logWithTime(`Erro ao limpar cache: ${error.message}`, error);
+            setTimeout(() => fetchJogosTime(timeIdToUse), 300);
+          });
+      } else {
+        // Se não há time configurado, notificar para configurar
+        setError("Clique no ícone de configuração para selecionar seu time favorito");
       }
+      
+      isFirstRender.current = false;
     }
     
-    // Limpar todos os timeouts ao desmontar
+    // Limpar timeouts ao desmontar
     return () => {
       if (timeoutId) {
-        logWithTime("Limpando timeout ao desmontar componente");
         clearTimeout(timeoutId);
       }
     };
   }, []);
   
-  // Função para salvar a configuração
-  const saveConfig = (newConfig) => {
-    logWithTime("Tentando salvar configuração:", newConfig);
-    
-    if (!newConfig.timeId) {
-      logWithTime("Tentativa de salvar sem time selecionado");
-      alert("Por favor, selecione um time antes de salvar.");
-      return;
+  // Modificar o useEffect que observa mudanças nas props data
+  useEffect(() => {
+    // Este efeito executa quando as props mudam
+    // 1. Verificar se temos dados pré-carregados (vindos do Dashboard após salvar config)
+    if (data?.preloadedData && data.preloadedData.loadedAt) {
+      const { ultimas, proximas, loadedAt } = data.preloadedData;
+      
+      // Verificar se os dados pré-carregados são recentes (menos de 10 segundos)
+      const isRecent = (Date.now() - loadedAt) < 10000;
+      
+      if (isRecent && (ultimas?.length > 0 || proximas?.length > 0)) {
+        logWithTime("Usando dados pré-carregados do time", {
+          timeId: data.config?.timeId,
+          ultimasCount: ultimas.length,
+          proximasCount: proximas.length
+        });
+        
+        // IMPORTANTE: Primeiro atualizar o estado local com o novo timeId
+        if (data.config?.timeId !== undefined) {
+          setConfig(prevConfig => ({
+            ...prevConfig,
+            ...data.config
+          }));
+        }
+        
+        // Atualizar dados diretamente sem fazer nova requisição
+        setUltimaPartida(ultimas[0] || null);
+        setProximaPartida(proximas[0] || null);
+        setLoading(false);
+        setError(null);
+        
+        return; // Sair do efeito para não fazer requisição duplicada
+      }
     }
-    
-    // Atualizar o estado
-    setConfig(newConfig);
-    setShowConfig(false);
-    
-    // Salvar no localStorage
-    try {
-      localStorage.setItem('jogosWidgetConfig', JSON.stringify(newConfig));
-      logWithTime("Configuração salva no localStorage com sucesso");
-    } catch (error) {
-      logWithTime("Erro ao salvar no localStorage:", error);
-    }
-    
-    // Limpar cache antes de carregar dados novos
-    logWithTime(`Limpando cache do time ID ${newConfig.timeId} antes de carregar dados`);
-    axios.get(`${API_URL}/cache/clear/times/${newConfig.timeId}`)
-      .then(() => {
-        logWithTime("Cache limpo com sucesso");
-        // Carregar os jogos do time selecionado
-        fetchJogosTime(newConfig.timeId);
-      })
-      .catch(error => {
-        logWithTime("Erro ao limpar cache (continuando mesmo assim):", error);
-        // Mesmo com erro, continuar com o carregamento
-        fetchJogosTime(newConfig.timeId);
+
+    // 2. Processamento normal das props (quando não há dados pré-carregados)
+    if (data?.refreshTimestamp || (data?.config?.timeId !== undefined)) {
+      const newTimeId = data?.config?.timeId;
+      
+      logWithTime("Detectada mudança nas props:", {
+        oldTimeId: config.timeId,
+        newTimeId: newTimeId,
+        timestamp: data?.refreshTimestamp
       });
-  };
+      
+      // IMPORTANTE: Usar um flag para garantir que o código abaixo só execute uma vez por mudança
+      const needsUpdate = 
+        data?.refreshTimestamp || 
+        (newTimeId !== undefined && newTimeId !== config.timeId);
+      
+      if (needsUpdate) {
+        // CRITICAL FIX: Guardar o timeId que será usado em uma variável local
+        // para não depender do estado que pode mudar assincronamente
+        const timeIdToUse = newTimeId || config.timeId;
+        
+        // Atualizar o estado local de config primeiro
+        if (newTimeId !== undefined) {
+          // Atualizar estado de forma síncrona antes de fazer a requisição
+          setConfig(prevConfig => {
+            const newConfig = {
+              ...prevConfig,
+              timeId: newTimeId
+            };
+            
+            logWithTime("Config local atualizada para:", newConfig);
+            return newConfig;
+          });
+        }
+        
+        // PONTO CRÍTICO: Se temos um ID válido (novo ou atual), fazer a requisição
+        if (timeIdToUse) {
+          // Usar setTimeout para garantir que outros efeitos não interfiram
+          setTimeout(() => {
+            logWithTime(`Buscando dados para timeId: ${timeIdToUse}`);
+            fetchJogosTime(timeIdToUse);
+          }, 0);
+        }
+      }
+    }
+  }, [data]); // Observar mudanças apenas em data
   
   // Componente para exibir uma partida
   const PartidaCard = ({ partida, tipo }) => {
@@ -434,23 +473,6 @@ export default function WidgetJogos({ data, onRemove }) {
     );
   };
   
-  // Renderizar a configuração primeiro se necessário
-  if (showConfig) {
-    return (
-      <WidgetJogosConfig 
-        config={config} 
-        onSave={saveConfig} 
-        onCancel={() => {
-          if (config.timeId) {
-            setShowConfig(false);
-            fetchJogosTime(config.timeId);
-          }
-        }}
-        clubesDisponiveis={CLUBES_SERIE_A}
-      />
-    );
-  }
-  
   // Renderizar o widget de loading (snippet substitui o bloco atual)
   if (loading) {
     return (
@@ -479,7 +501,8 @@ export default function WidgetJogos({ data, onRemove }) {
             if (timeoutId) clearTimeout(timeoutId);
             setLoading(false);
             requestInProgress.current = false;
-            setShowConfig(true);
+            // Remover o showConfig, pois não é mais usado
+            // setShowConfig(true);
           }}
           style={{ marginTop: "12px", padding: "8px 16px" }}
         >
@@ -508,14 +531,28 @@ export default function WidgetJogos({ data, onRemove }) {
         <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
           <button
             className="btn-primary"
-            onClick={() => setShowConfig(true)}
+            onClick={() => {
+              console.log("Botão Configurar Time Favorito clicado");
+              if (typeof onConfigure === 'function') {
+                onConfigure();
+              } else {
+                console.error("onConfigure não é uma função ou não foi fornecido");
+              }
+            }}
             style={{ flex: 1 }}
           >
             Configurar Time Favorito ⚙️
           </button>
           <button
             className="btn-secondary"
-            onClick={() => fetchJogosTime(config.timeId)}
+            onClick={() => {
+              console.log("Botão Tentar novamente clicado");
+              if (config.timeId) {
+                fetchJogosTime(config.timeId);
+              } else {
+                setError("Selecione um time favorito primeiro");
+              }
+            }}
             style={{ flex: 1 }}
           >
             Tentar novamente
@@ -569,7 +606,7 @@ export default function WidgetJogos({ data, onRemove }) {
               className="widget-config-btn" 
               onClick={(e) => {
                 e.stopPropagation();
-                setShowConfig(true);
+                onConfigure();
               }}
               title="Configurar time favorito"
             >

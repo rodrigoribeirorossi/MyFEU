@@ -1,3 +1,101 @@
+/* Estilos comuns para todos os widgets */
+
+.widget-footer {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px; /* Aumentar padding */
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  justify-content: flex-end;
+  margin-top: auto;
+}
+
+.widget-refresh-btn,
+.widget-config-btn,
+.widget-remove-btn {
+  background: none;
+  border: none;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+}
+
+.widget-refresh-btn:hover,
+.widget-config-btn:hover {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.widget-remove-btn:hover {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.widget-refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Animação de rotação para o ícone de refresh */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Melhorar espaçamento nos estados de erro e loading */
+.widget-loading,
+.widget-error {
+  padding: 20px; /* Aumentar padding */
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 12px; /* Adicionar gap */
+}
+
+.widget-loading-spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+}
+
+/* Headers dos widgets - Melhor espaçamento */
+.widget-header {
+  padding: 16px 20px; /* Aumentar padding */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.widget-title {
+  font-weight: 600;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Gap entre texto e ícone */
+}
+
+/* Content dos widgets - Melhor espaçamento */
+.widget-content {
+  padding: 16px 20px; /* Aumentar padding */
+  flex-grow: 1;
+  overflow: auto;
+  position: relative;
+}
+
 /* Estilos comuns para widgets */
 .widget-footer {
   display: flex;
@@ -9,6 +107,8 @@
   background: transparent;
   gap: 8px;
   position: relative;
+  /* Espaço adicional para evitar sobreposição com o redimensionador */
+  margin-bottom: 16px;
   /* Adicionar padding à direita para evitar conflito com o resize-handle */
   padding-right: 24px; 
 }

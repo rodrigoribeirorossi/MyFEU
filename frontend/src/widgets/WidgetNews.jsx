@@ -4,6 +4,10 @@ import axios from "axios";
 import '../styles/widgets/common.css';
 import '../styles/widgets/news.css';
 
+// Importar ícones do Material-UI
+import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
+import RefreshOutlinedIcon from '@mui/icons-material/RefreshOutlined';
+
 // Tópicos disponíveis
 const AVAILABLE_TOPICS = [
   { id: "technology", name: "Tecnologia" },
@@ -273,18 +277,15 @@ const fetchNewsFromApi = async (topic, country = 'br', language = null) => {
   }
 };
 
-export default function WidgetNews({ data }) {
+export default function WidgetNews({ data, onRemove, onConfigure }) {
   // Estado para armazenar as notícias
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentNewsIndex, setCurrentNewsIndex] = useState(0);
   const [imageLoading, setImageLoading] = useState(true);
-  
-  // MUDANÇA: Iniciar com modal de configuração aberto se não houver configuração prévia
-  const [showConfig, setShowConfig] = useState(!data?.config?.topics || data?.config?.topics.length === 0);
 
-  // Garantir que haja sempre um tópico padrão
+  // ESTADO DE CONFIGURAÇÃO INICIAL
   const [config, setConfig] = useState(() => {
     const defaultConfig = {
       topics: ["general"],
@@ -292,7 +293,8 @@ export default function WidgetNews({ data }) {
       maxNewsItems: 10
     };
     
-    if (data?.config) {
+    // PRIORIZAR props.data.config sobre localStorage
+    if (data?.config?.topics) {
       return {
         ...defaultConfig,
         ...data.config,
@@ -300,8 +302,26 @@ export default function WidgetNews({ data }) {
       };
     }
     
+    // Só usar localStorage se não houver configuração nas props
+    try {
+      const savedConfig = localStorage.getItem(`widget_config_${data?.i}`);
+      if (savedConfig) {
+        const parsedConfig = JSON.parse(savedConfig);
+        return {
+          ...defaultConfig,
+          ...parsedConfig,
+          topics: parsedConfig.topics?.length > 0 ? parsedConfig.topics : ["general"]
+        };
+      }
+    } catch (error) {
+      console.error("Erro ao carregar configurações salvas:", error);
+    }
+    
     return defaultConfig;
   });
+
+  // MODIFICAR O ESTADO DO MODAL DE CONFIGURAÇÃO
+  //const [showConfig, setShowConfig] = useState(false);
 
   // Adicione este novo estado para controlar a última atualização
   const [lastUpdate, setLastUpdate] = useState(null);
@@ -311,6 +331,21 @@ export default function WidgetNews({ data }) {
   
   // Flag para primeira execução
   const isFirstRender = useRef(true);
+
+  // ADICIONAR A DEFINIÇÃO DA VARIÁVEL currentNews
+  const currentNews = news.length > 0 ? news[currentNewsIndex] : null;
+
+  // MODIFICAR O useEffect QUE OBSERVA MUDANÇAS NAS PROPS
+  useEffect(() => {
+    // Atualizar configuração quando as props mudarem
+    if (data?.config && data.config !== config) {
+      setConfig(prevConfig => ({
+        ...prevConfig,
+        ...data.config,
+        topics: data.config.topics?.length > 0 ? data.config.topics : prevConfig.topics
+      }));
+    }
+  }, [data?.config, data?.refreshTimestamp]);
 
   // Buscar notícias - função separada para melhor legibilidade
   const loadNews = async () => {
@@ -461,30 +496,18 @@ export default function WidgetNews({ data }) {
     setImageLoading(true);
   }, [currentNewsIndex]);
 
-  // Salvar configurações
+  // MODIFICAR A FUNÇÃO saveConfig PARA NÃO ABRIR MODAL INTERNO
   const saveConfig = (newConfig) => {
-    console.log("Salvando nova configuração:", newConfig);
+    console.log("Configuração será salva via Dashboard:", newConfig);
     
-    // Atualizar o estado local
+    // Atualizar o estado local temporariamente
     setConfig(newConfig);
     setShowConfig(false);
     
-    // Persistir as configurações (se tiver acesso à API ou ao localStorage)
-    try {
-      // Opção 1: Salvar via API
-      // Se você tiver uma API para salvar as preferências do usuário:
-      // await saveUserPreferences(userId, widgetId, newConfig);
-      
-      // Opção 2: Salvar no localStorage como fallback
-      localStorage.setItem('newsWidgetConfig', JSON.stringify(newConfig));
-      
-      console.log("Configurações salvas com sucesso");
-    } catch (error) {
-      console.error("Erro ao persistir configurações:", error);
+    // Chamar onConfigure para abrir o modal do Dashboard
+    if (typeof onConfigure === 'function') {
+      onConfigure();
     }
-    
-    // Carregar notícias com as novas configurações
-    setTimeout(loadNews, 100);
   };
 
   // Abre a URL da notícia em uma nova aba
@@ -509,46 +532,75 @@ export default function WidgetNews({ data }) {
       <div className="widget-news-error">
         <p>{error}</p>
         
-        {/* Botão de configuração mais destacado */}
         <button 
           className="btn-primary" 
           onClick={() => {
-            console.log("Botão de configuração clicado");
-            setShowConfig(true);
-            console.log("showConfig após clique:", true);
+            console.log("Botão de configuração de notícias clicado");
+            if (typeof onConfigure === 'function') {
+              onConfigure();
+            } else {
+              console.error("onConfigure não é uma função ou não foi fornecido");
+            }
           }}
-          style={{ marginTop: "10px", display: "block", width: "100%" }}
+          style={{ 
+            marginTop: "10px", 
+            display: "flex", 
+            alignItems: "center", 
+            justifyContent: "center",
+            gap: "8px",
+            width: "100%" 
+          }}
         >
-          Configurar Widget de Notícias ⚙️
+          <SettingsOutlinedIcon sx={{ fontSize: '1rem' }} />
+          Configurar Notícias
         </button>
         
         <button 
           className="btn-secondary" 
           onClick={loadNews}
-          style={{ marginTop: "10px", display: "block", width: "100%" }}
+          style={{ 
+            marginTop: "10px", 
+            display: "flex", 
+            alignItems: "center", 
+            justifyContent: "center",
+            gap: "8px",
+            width: "100%" 
+          }}
         >
+          <RefreshOutlinedIcon sx={{ fontSize: '1rem' }} />
           Tentar novamente
         </button>
       </div>
     );
   }
 
-  // Mostra uma notícia de cada vez com navegação
-  const currentNews = news[currentNewsIndex] || null;
-
+  // MODIFICAR A RENDERIZAÇÃO QUANDO NÃO HÁ NOTÍCIAS
   return (
     <div className="widget-news" style={{ position: 'relative', overflow: 'hidden', height: '100%', boxSizing: 'border-box' }}>
       {news.length === 0 ? (
-        // Código existente para quando não há notícias
         <div className="widget-news-empty">
           <p>Nenhuma notícia disponível.</p>
           <p>Configure tópicos para ver notícias relevantes.</p>
           <button 
             className="btn-primary" 
-            onClick={() => setShowConfig(true)}
-            style={{ marginTop: "10px" }}
+            onClick={() => {
+              console.log("Botão configurar notícias (empty) clicado");
+              if (typeof onConfigure === 'function') {
+                onConfigure();
+              } else {
+                console.error("onConfigure não disponível");
+              }
+            }}
+            style={{ 
+              marginTop: "10px",
+              display: "flex", 
+              alignItems: "center", 
+              justifyContent: "center",
+              gap: "8px"
+            }}
           >
-            Configurar
+            <SettingsOutlinedIcon sx={{ fontSize: '1rem' }} />
+            Configurar Notícias
           </button>
         </div>
       ) : (
@@ -560,7 +612,7 @@ export default function WidgetNews({ data }) {
               cursor: "pointer",
               display: "flex",
               flexDirection: "column",
-              height: "calc(100% - 32px)", // Ajustar altura para dar espaço aos botões
+              height: "calc(100% - 32px)",
               overflow: "hidden",
             }}
             title="Clique para abrir a notícia"
@@ -569,7 +621,6 @@ export default function WidgetNews({ data }) {
               <div className="news-item">
                 <h4 className="news-title">{currentNews.title}</h4>
                 
-                {/* Mover as informações de fonte e categoria para cima da imagem */}
                 <div className="news-meta-top">
                   <span className="news-source">{currentNews.source}</span>
                   {currentNews.topicSource && (
@@ -597,7 +648,6 @@ export default function WidgetNews({ data }) {
                         setImageLoading(false);
                         e.target.onerror = null;
                         
-                        // Substituir com imagem de fallback baseada no tópico
                         const fallbackImages = {
                           technology: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop",
                           business: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop",
@@ -615,7 +665,6 @@ export default function WidgetNews({ data }) {
                     />
                   </div>
                 ) : (
-                  // Sempre mostrar uma imagem de categoria quando não houver imagem específica
                   <div className="news-image-container">
                     <img 
                       src={`https://source.unsplash.com/featured/?${config.topics[0] || "news"}`}
@@ -633,7 +682,6 @@ export default function WidgetNews({ data }) {
                   <p className="news-description">{currentNews.description}</p>
                 )}
                 
-                {/* Nova área de footer apenas para contagem de notícias */}
                 <div className="news-counter">
                   {news.length > 1 && `${currentNewsIndex + 1}/${news.length}`}
                 </div>
@@ -641,16 +689,6 @@ export default function WidgetNews({ data }) {
             )}
           </div>
         </>
-      )}
-      
-      {/* Modal de configuração existente */}
-      {showConfig && (
-        <WidgetNewsConfig
-          config={config}
-          topics={AVAILABLE_TOPICS}
-          onSave={saveConfig}
-          onCancel={() => setShowConfig(false)}
-        />
       )}
     </div>
   );
