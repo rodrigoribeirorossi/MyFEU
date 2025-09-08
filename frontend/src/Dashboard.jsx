@@ -3,6 +3,12 @@ import { Responsive, WidthProvider } from "react-grid-layout";
 import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
 import PaletteIcon from '@mui/icons-material/Palette';
+// Novos ícones para o cabeçalho
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import WbTwilightIcon from '@mui/icons-material/WbTwilight';
+import AcUnitIcon from '@mui/icons-material/AcUnit';
+import QueryBuilderIcon from '@mui/icons-material/QueryBuilder';
 import WidgetCard from "./WidgetCard";
 import AddWidgetModal from "./AddWidgetModal";
 import AppearanceModal from "./AppearanceModal";
@@ -664,11 +670,33 @@ export default function Dashboard() {
     }
   };
 
+  // Função para determinar o ícone da temperatura
+  const getTemperatureIcon = () => {
+    if (context.isLocationLoading) return null;
+    
+    // Extrair valor numérico da temperatura
+    const tempMatch = context.temperature.match(/(\d+)/);
+    if (!tempMatch) return <WbTwilightIcon className="header-card-icon" />;
+    
+    const temp = parseInt(tempMatch[1]);
+    
+    if (temp > 22) {
+      return <LightModeIcon className="header-card-icon temperature-hot" />;
+    } else if (temp >= 14 && temp <= 22) {
+      return <WbTwilightIcon className="header-card-icon temperature-mild" />;
+    } else {
+      return <AcUnitIcon className="header-card-icon temperature-cold" />;
+    }
+  };
+
   return (
     <div className="dashboard-container" style={{ background: bgColor }}>
       <header className="dashboard-header">
         <div className="header-card">
-          <div className="header-card-title">Localidade</div>
+          <div className="header-card-title">
+            <LocationOnIcon className="header-card-icon location-icon" />
+            <span>Localidade</span>
+          </div>
           <div className="header-card-content">
             {context.isLocationLoading ? (
               <span className="loading-indicator">Carregando...</span>
@@ -679,7 +707,10 @@ export default function Dashboard() {
         </div>
         
         <div className="header-card">
-          <div className="header-card-title">Temperatura</div>
+          <div className="header-card-title">
+            {getTemperatureIcon()}
+            <span>Temperatura</span>
+          </div>
           <div className="header-card-content">
             {context.isLocationLoading ? (
               <span className="loading-indicator">Carregando...</span>
@@ -690,7 +721,10 @@ export default function Dashboard() {
         </div>
         
         <div className="header-card">
-          <div className="header-card-title">Data/Hora</div>
+          <div className="header-card-title">
+            <QueryBuilderIcon className="header-card-icon datetime-icon" />
+            <span>Data/Hora</span>
+          </div>
           <div className="header-card-content">{context.datetime}</div>
         </div>
       </header>

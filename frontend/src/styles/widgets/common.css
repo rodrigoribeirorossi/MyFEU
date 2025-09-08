@@ -85,7 +85,18 @@
   font-size: 1rem;
   display: flex;
   align-items: center;
-  gap: 8px; /* Gap entre texto e ícone */
+  gap: 8px; /* Gap entre ícone e texto */
+}
+
+/* Garantir que ícones do Material-UI no título tenham cor consistente */
+.widget-title .MuiSvgIcon-root {
+  color: #495057;
+  transition: color 0.2s ease;
+}
+
+/* Adicionar hover effect para o título */
+.widget-drag-handle:hover .widget-title .MuiSvgIcon-root {
+  color: #007bff;
 }
 
 /* Content dos widgets - Melhor espaçamento */

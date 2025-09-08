@@ -148,13 +148,8 @@ export default function WidgetCard({ widget, onRemove, isDragging, isResizing, o
   };
 
   // Função para renderizar o ícone do widget
-  const renderWidgetIcon = () => {
-    // Se o widget tem um ícone customizado salvo, usar ele primeiro
-    if (typeof widget.icon === 'string' && widget.icon.trim()) {
-      return widget.icon;
-    }
-    
-    // Caso contrário, usar o ícone Material-UI baseado no widget_id
+  const renderWidgetIcon = () => {  
+    // Sempre usar o ícone baseado no widget_id - sempre usar o Material-UI
     return getWidgetIcon(widget.widget_id);
   };
 
